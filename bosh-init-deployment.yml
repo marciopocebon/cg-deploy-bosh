@@ -1,7 +1,6 @@
 ---
-name: master-bosh
-
 meta:
+  name: (( merge || "bosh" ))
   networks:
     private:
       static_ips: (( merge || [10.0.0.6] ))
@@ -17,6 +16,14 @@ meta:
     agent-password: ~
     hm-password: ~
     mbus-password: ~
+  aws:
+    access_key_id: ~
+    secret_access_key: ~
+    default_key_name: (( merge || "bosh" ))
+    default_security_groups: ~
+    region: ~
+
+name: (( meta.name ))
 
 releases:
 - name: bosh
@@ -98,7 +105,7 @@ jobs:
       port: 25777
 
     blobstore:
-      address: 10.0.0.6
+      address: (( meta.default_static_ip ))
       port: 25250
       provider: dav
       director:
@@ -110,7 +117,7 @@ jobs:
 
     director:
       address: 127.0.0.1
-      name: my-bosh
+      name: (( meta.name ))
       db: *db
       cpi_job: aws_cpi
       max_threads: 10
@@ -118,19 +125,23 @@ jobs:
         provider: local
         local:
           users:
-          - {name: admin, password: (( meta.passwords.admin-password ))}
-          - {name: hm, password: (( meta.passwords.hm-password ))}
+          - name: admin
+            password: (( meta.passwords.admin-password ))
+          - name: hm
+            password: (( meta.passwords.hm-password ))
 
     hm:
-      director_account: {user: hm, password: (( meta.passwords.hm-password ))}
+      director_account:
+        user: hm
+        password: (( meta.passwords.hm-password ))
       resurrector_enabled: true
 
     aws: &aws
-      access_key_id: ACCESS-KEY-ID # <--- Replace with AWS Access Key ID
-      secret_access_key: SECRET-ACCESS-KEY # <--- Replace with AWS Secret Key
-      default_key_name: bosh
-      default_security_groups: [bosh]
-      region: REGION  # <--- Replace with Region
+      access_key_id: (( meta.aws.access_key_id ))
+      secret_access_key: (( meta.aws.secret_access_key ))
+      default_key_name: (( meta.aws.default_key_name ))
+      default_security_groups: (( meta.aws.default_security_groups ))
+      region: (( meta.aws.region ))
 
     agent:
       mbus: (( "nats://nats:" meta.passwords.nats-password "@" meta.default_static_ip ":4222" ))
