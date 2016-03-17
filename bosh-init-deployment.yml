@@ -1,0 +1,156 @@
+---
+name: master-bosh
+
+meta:
+  networks:
+    private:
+      static_ips: (( merge || [10.0.0.6] ))
+  default_static_ip: (( meta.networks.private.static_ips.[0] ))
+  cloud_properties:
+    availability_zone: ~
+  passwords:
+    nats-password: ~
+    redis-password: ~
+    postgres-password: ~
+    admin-password: ~
+    director-password: ~
+    agent-password: ~
+    hm-password: ~
+    mbus-password: ~
+
+releases:
+- name: bosh
+  url: https://bosh.io/d/github.com/cloudfoundry/bosh?v=255.5
+  sha1: ffc41db255450cb72b74190c8b9c2a1fe9846ad7
+- name: bosh-aws-cpi
+  url: https://bosh.io/d/github.com/cloudfoundry-incubator/bosh-aws-cpi-release?v=45
+  sha1: 1c8dd94118983080c1f6f1362010d09fa3afc844
+
+resource_pools:
+- name: vms
+  network: private
+  stemcell:
+    url: https://bosh.io/d/stemcells/bosh-aws-xen-hvm-ubuntu-trusty-go_agent?v=3215
+    sha1: 3380b55948abe4c437dee97f67d2d8df4eec3fc1
+  cloud_properties:
+    instance_type: m1.small
+    ephemeral_disk: {size: 25_000, type: gp2}
+    availability_zone: (( meta.cloud_properties.availability_zone ))
+
+disk_pools:
+- name: bosh-ssd
+  disk_size: 20_000
+  cloud_properties: {type: gp2}
+
+networks: (( merge ))
+
+jobs:
+- name: bosh
+  instances: 1
+
+  templates:
+  - {name: nats, release: bosh}
+  - {name: redis, release: bosh}
+  - {name: postgres, release: bosh}
+  - {name: blobstore, release: bosh}
+  - {name: director, release: bosh}
+  - {name: health_monitor, release: bosh}
+  - {name: registry, release: bosh}
+  - {name: aws_cpi, release: bosh-aws-cpi}
+
+  resource_pool: vms
+  persistent_disk_pool: bosh-ssd
+
+  networks:
+  - name: private
+    static_ips: (( meta.networks.private.static_ips ))
+    default: [dns, gateway]
+
+  properties:
+    nats:
+      address: 127.0.0.1
+      user: nats
+      password: (( meta.passwords.nats-password ))
+
+    redis:
+      listen_address: 127.0.0.1
+      address: 127.0.0.1
+      password: (( meta.passwords.redis-password ))
+
+    postgres: &db
+      listen_address: 127.0.0.1
+      host: 127.0.0.1
+      user: postgres
+      password: (( meta.passwords.postgres-password ))
+      database: bosh
+      adapter: postgres
+
+    registry:
+      address: (( meta.default_static_ip ))
+      host: (( meta.default_static_ip ))
+      db: *db
+      http:
+        user: admin,
+        password: (( meta.passwords.admin-password ))
+        port: 25777
+      username: admin
+      password: (( meta.passwords.admin-password ))
+      port: 25777
+
+    blobstore:
+      address: 10.0.0.6
+      port: 25250
+      provider: dav
+      director:
+        user: director
+        password: (( meta.passwords.director-password ))
+      agent:
+        user: agent
+        password: (( meta.passwords.agent-password ))
+
+    director:
+      address: 127.0.0.1
+      name: my-bosh
+      db: *db
+      cpi_job: aws_cpi
+      max_threads: 10
+      user_management:
+        provider: local
+        local:
+          users:
+          - {name: admin, password: (( meta.passwords.admin-password ))}
+          - {name: hm, password: (( meta.passwords.hm-password ))}
+
+    hm:
+      director_account: {user: hm, password: (( meta.passwords.hm-password ))}
+      resurrector_enabled: true
+
+    aws: &aws
+      access_key_id: ACCESS-KEY-ID # <--- Replace with AWS Access Key ID
+      secret_access_key: SECRET-ACCESS-KEY # <--- Replace with AWS Secret Key
+      default_key_name: bosh
+      default_security_groups: [bosh]
+      region: REGION  # <--- Replace with Region
+
+    agent:
+      mbus: (( "nats://nats:" meta.passwords.nats-password "@" meta.default_static_ip ":4222" ))
+
+    ntp: &ntp [0.pool.ntp.org, 1.pool.ntp.org]
+
+cloud_provider:
+  template: {name: aws_cpi, release: bosh-aws-cpi}
+
+  ssh_tunnel:
+    host: (( meta.default_static_ip ))
+    port: 22
+    user: vcap
+    private_key: ./bosh.pem # Path relative to this manifest file
+
+  mbus: (( "https://mbus:" meta.passwords.mbus-password "@" meta.default_static_ip ":6868" ))
+
+  properties:
+    aws: *aws
+    agent:
+      mbus: (( "https://mbus:" meta.passwords.mbus-password "@0.0.0.0:6868" ))
+    blobstore: {provider: local, path: /var/vcap/micro_bosh/data/cache}
+    ntp: *ntp
