@@ -11,9 +11,9 @@ director_uuid: (( merge ))
 
 releases:
 - name: bosh
-  version: 229
+  version: latest
 - name: bosh-aws-cpi
-  version: 36
+  version: latest
 - name: uaa
   version: latest
 
