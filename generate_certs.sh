@@ -3,6 +3,12 @@
 # Copied from https://bosh.io/docs/director-certs.html
 
 set -e
+IP=$1
+
+if [ -z $1 ]; then
+  echo "Must provide IP address of the director"
+  exit 1
+fi
 
 certs=`dirname $0`/certs
 
@@ -45,9 +51,9 @@ EOL
   rm ./openssl-exts.conf
 }
 
-generateCert director 10.10.1.7 # <--- Replace with public Director IP
-generateCert uaa-web 10.10.1.7  # <--- Replace with public Director IP
-generateCert uaa-sp 10.10.1.7   # <--- Replace with public Director IP
+generateCert director $IP
+generateCert uaa-web $IP
+generateCert uaa-sp $IP
 
 echo "Finished..."
 ls -la .
