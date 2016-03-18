@@ -5,6 +5,7 @@ meta:
     private:
       static_ips: (( merge || [10.0.0.6] ))
   default_static_ip: (( meta.networks.private.static_ips.[0] ))
+  keypair_file: (( merge || "./bosh-init.pem" ))
   cloud_properties:
     availability_zone: ~
   passwords:
@@ -155,7 +156,7 @@ cloud_provider:
     host: (( meta.default_static_ip ))
     port: 22
     user: vcap
-    private_key: ./bosh.pem # Path relative to this manifest file
+    private_key: (( meta.keypair_file ))
 
   mbus: (( "https://mbus:" meta.passwords.mbus-password "@" meta.default_static_ip ":6868" ))
 
