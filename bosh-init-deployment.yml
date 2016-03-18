@@ -58,6 +58,7 @@ jobs:
 
   templates:
   - {name: nats, release: bosh}
+  - {name: powerdns, release: bosh}
   - {name: redis, release: bosh}
   - {name: postgres, release: bosh}
   - {name: blobstore, release: bosh}
@@ -79,6 +80,10 @@ jobs:
       address: 127.0.0.1
       user: nats
       password: (( meta.passwords.nats-password ))
+
+    dns:
+      address: (( meta.default_static_ip ))
+      db: *db
 
     redis:
       listen_address: 127.0.0.1
