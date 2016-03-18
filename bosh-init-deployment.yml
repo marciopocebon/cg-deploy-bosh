@@ -41,7 +41,7 @@ resource_pools:
     url: https://bosh.io/d/stemcells/bosh-aws-xen-hvm-ubuntu-trusty-go_agent?v=3215
     sha1: 84c51fed6342d5eb7cd59728c7d691c75b6c1de8
   cloud_properties:
-    instance_type: m1.small
+    instance_type: m3.large
     ephemeral_disk: {size: 25_000, type: gp2}
     availability_zone: (( meta.cloud_properties.availability_zone ))
 
