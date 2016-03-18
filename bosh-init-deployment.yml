@@ -81,16 +81,12 @@ jobs:
       user: nats
       password: (( meta.passwords.nats-password ))
 
-    dns:
-      address: (( meta.default_static_ip ))
-      db: *db
-
     redis:
       listen_address: 127.0.0.1
       address: 127.0.0.1
       password: (( meta.passwords.redis-password ))
 
-    postgres: &db
+    postgres: &bosh_db
       listen_address: 127.0.0.1
       host: 127.0.0.1
       user: postgres
@@ -98,10 +94,14 @@ jobs:
       database: bosh
       adapter: postgres
 
+    dns:
+      address: (( meta.default_static_ip ))
+      db: *bosh_db
+
     registry:
       address: (( meta.default_static_ip ))
       host: (( meta.default_static_ip ))
-      db: *db
+      db: *bosh_db
       http:
         user: admin,
         password: (( meta.passwords.admin-password ))
@@ -124,7 +124,7 @@ jobs:
     director:
       address: 127.0.0.1
       name: (( meta.name ))
-      db: *db
+      db: *bosh_db
       cpi_job: aws_cpi
       max_threads: 10
       user_management:
