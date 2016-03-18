@@ -22,7 +22,7 @@ compilation:
   network: default
   reuse_compilation_vms: true
   cloud_properties:
-    instance_type: m1.small
+    instance_type: m3.large
 
 update:
   canaries: 1
@@ -50,14 +50,14 @@ disk_pools:
     cloud_properties: {type: gp2}
 
 resource_pools:
-  - name: medium
+  - name: large
     network: default
     size: 1
     stemcell:
       name: bosh-aws-xen-ubuntu-trusty-go_agent
       version: latest
     cloud_properties:
-      instance_type: m1.small
+      instance_type: m3.large
 
 jobs:
   - name: bosh
@@ -72,7 +72,7 @@ jobs:
     - {name: aws_cpi, release: bosh-aws-cpi}
     - {name: uaa, release: uaa}
     instances: 1
-    resource_pool: medium
+    resource_pool: large
     persistent_disk_pool: bosh-ssd
     networks:
       - name: default
@@ -187,7 +187,7 @@ properties:
         authorized-grant-types: client_credentials
         scope: ""
         authorities: bosh.admin
-        secret: (( merge )) 
+        secret: (( merge ))
       bosh_cli:
         override: true
         authorized-grant-types: password,refresh_token
