@@ -1,10 +1,29 @@
-name: bosh
-
 meta:
-  subnet: ~
-  security_groups: ~
   db: ~
-  default_security_group: ~
+  name: (( merge || "bosh" ))
+  networks:
+    default:
+      static_ips: (( merge || [10.0.0.7] ))
+  default_static_ip: (( meta.networks.default.static_ips.[0] ))
+  aws:
+    access_key_id: ~
+    secret_access_key: ~
+    default_key_name: (( merge || "bosh" ))
+    default_security_groups: ~
+    region: ~
+  default_host_name: ~
+  parent_bosh_ip: ~
+  passwords:
+    nats-password: ~
+    redis-password: ~
+    admin-password: ~
+    director-password: ~
+    agent-password: ~
+    registry-password: ~
+    hm-password: ~
+    mbus-password: ~
+
+name: (( meta.name ))
 
 # Execute the "bosh status" command to obtain the director_uuid.
 director_uuid: (( merge ))
@@ -31,18 +50,7 @@ update:
   max_in_flight: 4
   max_errors: 1
 
-networks:
-  - name: default
-    subnets:
-      - static:
-        - 10.10.1.7 - 10.10.1.10
-        cloud_properties:
-          subnet: (( meta.subnet ))
-          security_groups: (( meta.security_groups ))
-        range: 10.10.1.0/24
-        reserved: [10.10.1.2-10.10.1.6]
-        dns: [10.10.1.6, 10.10.1.2]
-        gateway: 10.10.1.1
+networks: (( merge ))
 
 disk_pools:
   - name: bosh-ssd
@@ -76,7 +84,7 @@ jobs:
     persistent_disk_pool: bosh-ssd
     networks:
       - name: default
-        static_ips: [10.10.1.7]
+        static_ips: (( meta.networks.default.static_ips ))
 
 properties:
   env:
@@ -90,39 +98,29 @@ properties:
     database: bosh
 
   dns:
-    address: 10.10.1.7
+    address: (( meta.default_host_name ))
     db: *bosh_db
-    user: powerdns
-    password: powerdns
-    database:
-      name: powerdns
-    webserver:
-      password: powerdns
-    replication:
-      basic_auth: replication:zxKDUBeCfKYX
-      user: replication
-      password: powerdns
-    recursor: 10.10.1.6
+    recursor: (( meta.parent_bosh_ip ))
 
   redis:
-    address: 0.bosh.default.bosh.microbosh
-    password: redis
+    address: (( meta.default_host_name ))
+    password: (( meta.passwords.redis-password ))
 
   nats:
-    address: 0.bosh.default.bosh.microbosh
+    address: (( meta.default_host_name ))
     user: nats
-    password: nats
+    password: (( meta.passwords.nats-password ))
 
   director:
     name: bosh
-    address: 0.bosh.default.bosh.microbosh
+    address: (( meta.default_host_name ))
     db: *bosh_db
     ssl: (( merge ))
     user_management:
       provider: uaa
       uaa:
         <<: (( merge ))
-        url: "https://10.10.1.7:8443"
+        url: (( "https://" meta.default_host_name ":8443" ))
 
   blobstore:
     provider: s3
@@ -131,30 +129,30 @@ properties:
     secret_access_key: (( merge ))
     agent:
       user: agent
-      password: agent
+      password: (( meta.passwords.agent-password ))
     director:
       user: director
-      password: director
+      password: (( meta.passwords.director-password ))
 
   registry:
-    address: 0.bosh.default.bosh.microbosh
-    host: 0.bosh.default.bosh.microbosh
+    address: (( meta.default_host_name ))
+    host: (( meta.default_host_name ))
     db: *bosh_db
     http:
       user: registry
-      password: registry
+      password: (( meta.passwords.registry-password ))
       port: 25777
     username: registry
-    password: registry
+    password: (( meta.passwords.registry-password ))
     port: 25777
 
   hm:
     http:
       user: hm
-      password: hm
+      password: (( meta.passwords.hm-password ))
     director_account:
       user: admin
-      password: (( merge ))
+      password: (( meta.passwords.admin-password ))
       ca_cert: (( merge ))
       client_id: hm
       client_secret: (( merge ))
@@ -168,19 +166,20 @@ properties:
     resurrector:
       minimum_down_jobs: 3
 
-  aws:
-    access_key_id: (( merge ))
-    secret_access_key: (( merge ))
-    default_key_name: bosh
-    region: us-east-1
-    default_security_groups: [ (( meta.default_security_group )) ]
+  aws: &aws
+    access_key_id: (( meta.aws.access_key_id ))
+    secret_access_key: (( meta.aws.secret_access_key ))
+    default_key_name: (( meta.aws.default_key_name ))
+    default_security_groups: (( meta.aws.default_security_groups ))
+    region: (( meta.aws.region ))
 
-  agent: {mbus: "nats://nats:nats@10.10.1.7:4222"}
+  agent:
+    mbus: (( "nats://nats:" meta.passwords.nats-password "@" meta.default_host_name ":4222" ))
   ntp: &ntp [0.pool.ntp.org, 1.pool.ntp.org]
 
   uaa:
     <<: (( merge ))
-    url: "https://10.10.1.7:8443"
+    url: (( "https://" meta.default_host_name ":8443" ))
     clients:
       hm:
         override: true
