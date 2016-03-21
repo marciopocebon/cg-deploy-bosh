@@ -8,7 +8,8 @@ spiff merge \
 
 bosh-init deploy bosh-init-manfifest.yml
 
-# Upload release required for deploying another bosh
+# Upload releases and stemcell required for deploying another bosh
 bosh upload release https://bosh.io/d/github.com/cloudfoundry/bosh
 bosh upload release https://bosh.io/d/github.com/cloudfoundry/uaa-release
 bosh upload release https://bosh.io/d/github.com/cloudfoundry-incubator/bosh-aws-cpi-release
+bosh upload stemcell https://bosh.io/d/stemcells/bosh-aws-xen-hvm-ubuntu-trusty-go_agent
