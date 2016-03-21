@@ -4,6 +4,8 @@ meta:
   networks:
     default:
       static_ips: (( merge || [10.0.0.7] ))
+  cloud_properties:
+    availability_zone: ~
   default_static_ip: (( meta.networks.default.static_ips.[0] ))
   aws:
     access_key_id: ~
