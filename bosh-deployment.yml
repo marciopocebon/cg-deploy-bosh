@@ -21,7 +21,6 @@ meta:
     agent-password: ~
     registry-password: ~
     hm-password: ~
-    mbus-password: ~
 
 name: (( meta.name ))
 
