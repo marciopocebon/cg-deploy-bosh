@@ -51,9 +51,18 @@ EOL
   rm ./openssl-exts.conf
 }
 
+function generateKeyPair {
+  name=$1
+  echo "Generating RSA key pair..."
+  openssl genrsa -out ${name}.key 2048
+  openssl rsa -in ${name}.key -pubout -out ${name}.pub
+}
+
 generateCert director $IP
 generateCert uaa-web $IP
 generateCert uaa-sp $IP
+
+generateKeyPair jwt
 
 echo "Finished..."
 ls -la .
