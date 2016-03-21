@@ -97,7 +97,7 @@ properties:
     user: (( meta.db.user ))
     password: (( meta.db.pass ))
     host: (( meta.db.host ))
-    database: bosh
+    database: (( meta.db.database ))
 
   dns:
     address: (( meta.default_host_name ))
