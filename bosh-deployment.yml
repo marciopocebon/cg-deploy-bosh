@@ -105,7 +105,8 @@ properties:
     recursor: (( meta.parent_bosh_ip ))
 
   redis:
-    address: (( meta.default_host_name ))
+    listen_address: 127.0.0.1
+    address: 127.0.0.1
     password: (( meta.passwords.redis-password ))
 
   nats:
