@@ -1,12 +1,25 @@
 #!/bin/sh
 
 # Generate manifest and initial deploy
-spiff merge \
-    bosh-init-deployment.yml \
-    bosh-init-secrets.yml \
-    > bosh-init-manifest.yml
+set -e -x
 
-bosh-init deploy bosh-init-manfifest.yml
+SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
+
+SECRETS=$SCRIPTPATH/bosh-init-secrets.yml
+MANIFEST=$SCRIPTPATH/bosh-init-manifest.yml
+if [ ! -z "$1" ]; then
+  SECRETS=$1
+fi
+if [ ! -z "$2" ]; then
+  MANIFEST=$2
+fi
+
+spiff merge \
+  $SCRIPTPATH/bosh-init-deployment.yml \
+  $SECRETS \
+  > $MANIFEST
+
+bosh-init deploy $MANIFEST
 
 # Upload releases and stemcell required for deploying another bosh
 bosh upload release https://bosh.io/d/github.com/cloudfoundry/bosh
