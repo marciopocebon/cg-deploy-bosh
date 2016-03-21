@@ -103,7 +103,7 @@ jobs:
       host: (( meta.default_static_ip ))
       db: *bosh_db
       http:
-        user: admin,
+        user: admin
         password: (( meta.passwords.admin-password ))
         port: 25777
       username: admin
