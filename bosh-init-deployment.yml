@@ -23,6 +23,7 @@ meta:
     default_key_name: (( merge || "bosh" ))
     default_security_groups: ~
     region: ~
+  upstream_dns_ip: ~
 
 name: (( meta.name ))
 
@@ -97,6 +98,7 @@ jobs:
     dns:
       address: (( meta.default_static_ip ))
       db: *bosh_db
+      recursor: (( meta.upstream_dns_ip ))
 
     registry:
       address: (( meta.default_static_ip ))
