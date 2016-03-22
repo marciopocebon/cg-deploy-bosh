@@ -13,7 +13,6 @@ meta:
     default_key_name: (( merge || "bosh" ))
     default_security_groups: ~
     region: ~
-  default_host_name: ~
   parent_bosh_ip: ~
   passwords:
     nats-password: ~
@@ -100,7 +99,7 @@ properties:
     database: (( meta.db.database ))
 
   dns:
-    address: (( meta.default_host_name ))
+    address: (( meta.default_static_ip ))
     db: *bosh_db
     recursor: (( meta.parent_bosh_ip ))
 
@@ -110,20 +109,20 @@ properties:
     password: (( meta.passwords.redis-password ))
 
   nats:
-    address: (( meta.default_host_name ))
+    address: (( meta.default_static_ip ))
     user: nats
     password: (( meta.passwords.nats-password ))
 
   director:
     name: bosh
-    address: (( meta.default_host_name ))
+    address: (( meta.default_static_ip ))
     db: *bosh_db
     ssl: (( merge ))
     user_management:
       provider: uaa
       uaa:
         <<: (( merge ))
-        url: (( "https://" meta.default_host_name ":8443" ))
+        url: (( "https://" meta.default_static_ip ":8443" ))
 
   blobstore:
     provider: s3
@@ -138,8 +137,8 @@ properties:
       password: (( meta.passwords.director-password ))
 
   registry:
-    address: (( meta.default_host_name ))
-    host: (( meta.default_host_name ))
+    address: (( meta.default_static_ip ))
+    host: (( meta.default_static_ip ))
     db: *bosh_db
     http:
       user: registry
@@ -183,12 +182,12 @@ properties:
     region: (( meta.aws.region ))
 
   agent:
-    mbus: (( "nats://nats:" meta.passwords.nats-password "@" meta.default_host_name ":4222" ))
+    mbus: (( "nats://nats:" meta.passwords.nats-password "@" meta.default_static_ip ":4222" ))
   ntp: &ntp [0.pool.ntp.org, 1.pool.ntp.org]
 
   uaa:
     <<: (( merge ))
-    url: (( "https://" meta.default_host_name ":8443" ))
+    url: (( "https://" meta.default_static_ip ":8443" ))
     clients:
       hm:
         override: true
