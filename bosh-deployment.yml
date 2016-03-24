@@ -14,6 +14,7 @@ meta:
     default_security_groups: ~
     region: ~
   parent_bosh_ip: ~
+  bosh_domain_name: ~
   passwords:
     nats-password: ~
     redis-password: ~
@@ -67,6 +68,7 @@ resource_pools:
     cloud_properties:
       instance_type: m3.large
       availability_zone: (( meta.cloud_properties.availability_zone ))
+      key_name: (( meta.aws.default_key_name ))
 
 jobs:
   - name: bosh
@@ -102,6 +104,7 @@ properties:
     address: (( meta.default_static_ip ))
     db: *bosh_db
     recursor: (( meta.parent_bosh_ip ))
+    domain_name: (( meta.bosh_domain_name ))
 
   redis:
     listen_address: 127.0.0.1

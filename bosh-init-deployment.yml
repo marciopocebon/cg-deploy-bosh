@@ -24,6 +24,7 @@ meta:
     default_security_groups: ~
     region: ~
   upstream_dns_ip: ~
+  bosh_domain_name: ~
 
 name: (( meta.name ))
 
@@ -99,6 +100,7 @@ jobs:
       address: (( meta.default_static_ip ))
       db: *bosh_db
       recursor: (( meta.upstream_dns_ip ))
+      domain_name: (( meta.bosh_domain_name ))
 
     registry:
       address: (( meta.default_static_ip ))
