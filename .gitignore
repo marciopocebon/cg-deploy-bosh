@@ -1,3 +1,4 @@
 certs
 *secrets.yml
 *.pem
+credentials.yml
