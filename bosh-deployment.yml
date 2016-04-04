@@ -198,13 +198,18 @@ properties:
         scope: ""
         authorities: bosh.admin
         secret: (( merge ))
+      ci:
+        authorized-grant-types: client_credentials
+        scope: ""
+        authorities: bosh.admin
+        secret: (( merge ))
       bosh_cli:
         override: true
         authorized-grant-types: password,refresh_token
         # scopes the client may receive
         scope: openid,bosh.admin,bosh.read,bosh.*.admin,bosh.*.read
         authorities: uaa.none
-        access-token-validity: 1200 # 10 min
+        access-token-validity: 1200 # 20 min
         refresh-token-validity: 86400 # re-login required once a day
         secret: ""
 
