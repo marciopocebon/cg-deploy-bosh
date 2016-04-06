@@ -1,6 +1,6 @@
 ---
 jobs:
-- name: deploy-tooling-bosh
+- name: deploy-staging-bosh
   serial: true
   plan:
   - aggregate:
@@ -10,8 +10,71 @@ jobs:
     - get: bosh-release
       trigger: true
     - get: uaa-release
+      trigger: true
     - get: cpi-release
+      trigger: true
     - get: bosh-stemcell
+    - get: common-staging
+      trigger: true
+  - task: bosh-manifest
+    file: pipeline-tasks/spiff-merge.yml
+    config:
+      inputs:
+        - name: pipeline-tasks
+        - name: bosh-config
+        - name: common-staging
+    params:
+      OUTPUT_FILE: spiff-merge/manifest.yml
+      SOURCE_FILE: bosh-config/bosh-deployment.yml
+      MERGE_FILES: common-staging/secrets.yml
+  - put: stagingbosh-deployment
+    params:
+      cert: common-staging/boshCA.crt
+      manifest: spiff-merge/manifest.yml
+      releases:
+        - bosh-release/*.tgz
+        - uaa-release/*.tgz
+        - cpi-release/*.tgz
+      stemcells:
+        - bosh-stemcell/*.tgz
+    on_failure:
+      put: slack
+      params:
+        text: |
+          :x: FAILED to deploy Staging BOSH
+          <$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+        channel: {{slack-channel}}
+        username: {{slack-username}}
+        icon_url: {{slack-icon-url}}
+    on_success:
+      put: slack
+      params:
+        text: |
+          :white_check_mark: Successfully deployed Staging BOSH
+          <$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+        channel: {{slack-channel}}
+        username: {{slack-username}}
+        icon_url: {{slack-icon-url}}
+
+- name: deploy-tooling-bosh
+  serial: true
+  plan:
+  - aggregate:
+    - get: pipeline-tasks
+    - get: bosh-config
+      trigger: true
+      passed: [deploy-staging-bosh]
+    - get: bosh-release
+      trigger: true
+      passed: [deploy-staging-bosh]
+    - get: uaa-release
+      trigger: true
+      passed: [deploy-staging-bosh]
+    - get: cpi-release
+      trigger: true
+      passed: [deploy-staging-bosh]
+    - get: bosh-stemcell
+      passed: [deploy-staging-bosh]
     - get: common-tooling
       trigger: true
   - task: bosh-manifest
@@ -39,7 +102,7 @@ jobs:
       params:
         text: |
           :x: FAILED to deploy Tooling BOSH
-          <https://$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+          <$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
         channel: {{slack-channel}}
         username: {{slack-username}}
         icon_url: {{slack-icon-url}}
@@ -48,7 +111,7 @@ jobs:
       params:
         text: |
           :white_check_mark: Successfully deployed Tooling BOSH
-          <https://$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+          <$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
         channel: {{slack-channel}}
         username: {{slack-username}}
         icon_url: {{slack-icon-url}}
@@ -62,7 +125,17 @@ resources:
     secret_access_key: {{production-bucket-secret-access-key}}
     secrets_file: tooling-bosh.yml
     secrets_passphrase: {{tooling-secrets-passphrase}}
-    bosh_cert: bosh.pem
+    bosh_cert: bosh-tooling.pem
+
+- name: common-staging
+  type: cg-common
+  source:
+    bucket_name: {{production-bucket-name}}
+    access_key_id: {{production-bucket-access-key-id}}
+    secret_access_key: {{production-bucket-secret-access-key}}
+    secrets_file: staging-bosh.yml
+    secrets_passphrase: {{staging-secrets-passphrase}}
+    bosh_cert: bosh-tooling.pem
 
 - name: bosh-release
   type: bosh-io-release
@@ -91,12 +164,20 @@ resources:
     name: {{bosh-stemcell}}
 
 - name: toolingbosh-deployment
-  type: bosh-deployment
+  type: 18f-bosh-deployment
   source:
     target: {{masterbosh-target}}
     username: {{masterbosh-username}}
     password: {{masterbosh-password}}
     deployment: toolingbosh
+
+- name: stagingbosh-deployment
+  type: 18f-bosh-deployment
+  source:
+    target: {{toolingbosh-target}}
+    username: {{toolingbosh-username}}
+    password: {{toolingbosh-password}}
+    deployment: stagingbosh
 
 - name: pipeline-tasks
   type: git
