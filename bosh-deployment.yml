@@ -36,6 +36,8 @@ releases:
   version: latest
 - name: uaa
   version: latest
+- name: monitor-server
+  version: latest
 
 compilation:
   workers: 3
@@ -82,6 +84,7 @@ jobs:
     - {name: powerdns, release: bosh}
     - {name: aws_cpi, release: bosh-aws-cpi}
     - {name: uaa, release: uaa}
+    - {name: monitor-server, release: monitor-server}
     instances: 1
     resource_pool: large
     persistent_disk_pool: bosh-ssd
@@ -176,6 +179,12 @@ properties:
     resurrector_enabled: true
     resurrector:
       minimum_down_jobs: 3
+
+  monitor_server:
+    ephemeral_disk:
+      alert_percent: 80
+    persistent_disk:
+      alert_percent: 80
 
   aws: &aws
     access_key_id: (( meta.aws.access_key_id ))
