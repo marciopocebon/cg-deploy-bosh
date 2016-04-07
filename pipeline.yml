@@ -56,7 +56,7 @@ jobs:
         username: {{slack-username}}
         icon_url: {{slack-icon-url}}
 
-- name: deploy-tooling-bosh
+- name: deploy-production-bosh
   serial: true
   plan:
   - aggregate:
@@ -75,6 +75,67 @@ jobs:
       passed: [deploy-staging-bosh]
     - get: bosh-stemcell
       passed: [deploy-staging-bosh]
+    - get: common-production
+      trigger: true
+  - task: bosh-manifest
+    file: pipeline-tasks/spiff-merge.yml
+    config:
+      inputs:
+        - name: pipeline-tasks
+        - name: bosh-config
+        - name: common-production
+    params:
+      OUTPUT_FILE: spiff-merge/manifest.yml
+      SOURCE_FILE: bosh-config/bosh-deployment.yml
+      MERGE_FILES: common-production/secrets.yml
+  - put: productionbosh-deployment
+    params:
+      cert: common-production/boshCA.crt
+      manifest: spiff-merge/manifest.yml
+      releases:
+        - bosh-release/*.tgz
+        - uaa-release/*.tgz
+        - cpi-release/*.tgz
+      stemcells:
+        - bosh-stemcell/*.tgz
+    on_failure:
+      put: slack
+      params:
+        text: |
+          :x: FAILED to deploy production BOSH
+          <$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+        channel: {{slack-channel}}
+        username: {{slack-username}}
+        icon_url: {{slack-icon-url}}
+    on_success:
+      put: slack
+      params:
+        text: |
+          :white_check_mark: Successfully deployed production BOSH
+          <$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+        channel: {{slack-channel}}
+        username: {{slack-username}}
+        icon_url: {{slack-icon-url}}
+
+- name: deploy-tooling-bosh
+  serial: true
+  plan:
+  - aggregate:
+    - get: pipeline-tasks
+    - get: bosh-config
+      trigger: true
+      passed: [deploy-production-bosh]
+    - get: bosh-release
+      trigger: true
+      passed: [deploy-production-bosh]
+    - get: uaa-release
+      trigger: true
+      passed: [deploy-production-bosh]
+    - get: cpi-release
+      trigger: true
+      passed: [deploy-production-bosh]
+    - get: bosh-stemcell
+      passed: [deploy-production-bosh]
     - get: common-tooling
       trigger: true
   - task: bosh-manifest
@@ -137,6 +198,16 @@ resources:
     secrets_passphrase: {{staging-secrets-passphrase}}
     bosh_cert: bosh-tooling.pem
 
+- name: common-production
+  type: cg-common
+  source:
+    bucket_name: {{production-bucket-name}}
+    access_key_id: {{production-bucket-access-key-id}}
+    secret_access_key: {{production-bucket-secret-access-key}}
+    secrets_file: prod-bosh.yml
+    secrets_passphrase: {{prod-secrets-passphrase}}
+    bosh_cert: bosh-tooling.pem
+
 - name: bosh-release
   type: bosh-io-release
   source:
@@ -178,6 +249,14 @@ resources:
     username: {{toolingbosh-username}}
     password: {{toolingbosh-password}}
     deployment: stagingbosh
+
+- name: productionbosh-deployment
+  type: 18f-bosh-deployment
+  source:
+    target: {{toolingbosh-target}}
+    username: {{toolingbosh-username}}
+    password: {{toolingbosh-password}}
+    deployment: productionbosh
 
 - name: pipeline-tasks
   type: git
