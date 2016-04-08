@@ -177,6 +177,60 @@ jobs:
         username: {{slack-username}}
         icon_url: {{slack-icon-url}}
 
+- name: deploy-master-bosh
+  serial: true
+  plan:
+  - aggregate:
+    - get: pipeline-tasks
+    - get: bosh-init-config
+      trigger: true
+    - get: common-masterbosh
+      trigger: true
+  - task: bosh-manifest
+    file: pipeline-tasks/spiff-merge.yml
+    config:
+      inputs:
+        - name: pipeline-tasks
+        - name: bosh-init-config
+        - name: common-masterbosh
+    params:
+      OUTPUT_FILE: spiff-merge/manifest.yml
+      SOURCE_FILE: bosh-init-config/bosh-init-deployment.yml
+      MERGE_FILES: common-masterbosh/secrets.yml
+  - task: decrypt-private-key
+    file: pipeline-tasks/decrypt.yml
+    config:
+      inputs:
+        - name: pipeline-tasks
+        - name: common-masterbosh
+    params:
+      INPUT_FILE: common-masterbosh/boshCA.crt
+      OUTPUT_FILE: decrypt/bosh-init.pem
+      PASSPHRASE: {{masterbosh-secrets-passphrase}}
+  - put: masterbosh-deployment
+    params:
+      manifest_file: spiff-merge/manifest.yml
+      key_file: decrypt/bosh-init.pem
+      stats_file_key: master-bosh-state.json
+    on_failure:
+      put: slack
+      params:
+        text: |
+          :x: FAILED to deploy Master BOSH
+          <$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+        channel: {{slack-channel}}
+        username: {{slack-username}}
+        icon_url: {{slack-icon-url}}
+    on_success:
+      put: slack
+      params:
+        text: |
+          :white_check_mark: Successfully deployed Master BOSH
+          <$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+        channel: {{slack-channel}}
+        username: {{slack-username}}
+        icon_url: {{slack-icon-url}}
+
 resources:
 - name: common-tooling
   type: cg-common
@@ -208,6 +262,16 @@ resources:
     secrets_passphrase: {{prod-secrets-passphrase}}
     bosh_cert: bosh-tooling.pem
 
+- name: common-masterbosh
+  type: cg-common
+  source:
+    bucket_name: {{production-bucket-name}}
+    access_key_id: {{production-bucket-access-key-id}}
+    secret_access_key: {{production-bucket-secret-access-key}}
+    secrets_file: master-bosh.yml
+    secrets_passphrase: {{masterbosh-secrets-passphrase}}
+    bosh_cert: master-bosh.pem
+
 - name: bosh-release
   type: bosh-io-release
   source:
@@ -228,6 +292,16 @@ resources:
   source:
     uri: {{cg-deploy-bosh-git-url}}
     branch: {{cg-deploy-bosh-git-branch}}
+    paths:
+    - bosh-deployment.yml
+
+- name: bosh-init-config
+  type: git
+  source:
+    uri: {{cg-deploy-bosh-git-url}}
+    branch: {{cg-deploy-bosh-git-branch}}
+    paths:
+    - bosh-init-deployment.yml
 
 - name: bosh-stemcell
   type: bosh-io-stemcell
@@ -258,6 +332,14 @@ resources:
     password: {{toolingbosh-password}}
     deployment: productionbosh
 
+- name: masterbosh-deployment
+  type: bosh-init-deployment
+  source:
+    bucket_name: {{bosh-init-bucket-name}}
+    access_key_id: {{bosh-init-bucket-access-key-id}}
+    secret_access_key: {{bosh-init-bucket-secret-access-key}}
+    region: {{bosh-init-bucket-region}}
+
 - name: pipeline-tasks
   type: git
   source:
@@ -268,3 +350,9 @@ resources:
   type: slack-notification
   source:
     url: {{slack-webhook-url}}
+
+resource_types:
+- name: bosh-init-deployment
+  type: docker-image
+  source:
+    repository: teamidefix/bosh-init-deployment-resource
