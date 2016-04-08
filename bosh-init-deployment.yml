@@ -30,11 +30,11 @@ name: (( meta.name ))
 
 releases:
 - name: bosh
-  url: https://bosh.io/d/github.com/cloudfoundry/bosh?v=255.5
-  sha1: ffc41db255450cb72b74190c8b9c2a1fe9846ad7
+  url: https://bosh.io/d/github.com/cloudfoundry/bosh?v=255.8
+  sha1: 6b12652650b87810dcef1be1f6a6d23f1c0c13a7
 - name: bosh-aws-cpi
-  url: https://bosh.io/d/github.com/cloudfoundry-incubator/bosh-aws-cpi-release?v=45
-  sha1: 1c8dd94118983080c1f6f1362010d09fa3afc844
+  url: https://bosh.io/d/github.com/cloudfoundry-incubator/bosh-aws-cpi-release?v=48
+  sha1: 2abfa1bed326238861e247a10674acf4f7ac48b8
 
 resource_pools:
 - name: vms
