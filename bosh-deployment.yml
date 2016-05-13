@@ -83,7 +83,7 @@ jobs:
       - name: default
         static_ips: (( meta.networks.default.static_ips ))
 
-resource_pools: ~
+resource_pools: []
 
 properties:
   env:
