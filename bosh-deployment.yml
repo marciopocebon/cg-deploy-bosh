@@ -97,6 +97,8 @@ properties:
     password: (( meta.db.pass ))
     host: (( meta.db.host ))
     database: (( meta.db.database ))
+    additional_databases:
+      - (( meta.db.uaadb || "bosh_uaadb" ))
 
   dns:
     address: (( meta.default_static_ip ))
