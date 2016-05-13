@@ -57,18 +57,6 @@ disk_pools:
     disk_size: 300000
     cloud_properties: {type: gp2}
 
-resource_pools:
-  - name: large
-    network: default
-    size: 1
-    stemcell:
-      name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
-      version: latest
-    cloud_properties:
-      instance_type: m3.large
-      availability_zone: (( meta.cloud_properties.availability_zone ))
-      key_name: (( meta.aws.default_key_name ))
-
 jobs:
   - name: bosh
     templates:
@@ -81,7 +69,15 @@ jobs:
     - {name: aws_cpi, release: bosh-aws-cpi}
     - {name: uaa, release: uaa}
     instances: 1
-    resource_pool: large
+    resource_pool:
+      network: default
+      stemcell:
+        name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+        version: latest
+      cloud_properties:
+        instance_type: m3.large
+        availability_zone: (( meta.cloud_properties.availability_zone ))
+        key_name: (( meta.aws.default_key_name ))
     persistent_disk_pool: bosh-ssd
     networks:
       - name: default
