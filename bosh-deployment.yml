@@ -42,6 +42,7 @@ compilation:
   reuse_compilation_vms: true
   cloud_properties:
     instance_type: m3.large
+    availability_zone: (( meta.cloud_properties.availability_zone ))
 
 update:
   canaries: 1
