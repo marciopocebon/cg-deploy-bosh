@@ -17,7 +17,6 @@ meta:
   bosh_domain_name: ~
   passwords:
     nats-password: ~
-    redis-password: ~
     admin-password: ~
     director-password: ~
     agent-password: ~
@@ -74,7 +73,6 @@ jobs:
   - name: bosh
     templates:
     - {name: nats, release: bosh}
-    - {name: redis, release: bosh}
     - {name: blobstore, release: bosh}
     - {name: director, release: bosh}
     - {name: health_monitor, release: bosh}
@@ -105,11 +103,6 @@ properties:
     db: *bosh_db
     recursor: (( meta.parent_bosh_ip ))
     domain_name: (( meta.bosh_domain_name ))
-
-  redis:
-    listen_address: 127.0.0.1
-    address: 127.0.0.1
-    password: (( meta.passwords.redis-password ))
 
   nats:
     address: (( meta.default_static_ip ))
