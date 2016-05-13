@@ -69,21 +69,22 @@ jobs:
     - {name: aws_cpi, release: bosh-aws-cpi}
     - {name: uaa, release: uaa}
     instances: 1
-    resource_pool:
-      network: default
-      stemcell:
-        name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
-        version: latest
-      cloud_properties:
-        instance_type: m3.large
-        availability_zone: (( meta.cloud_properties.availability_zone ))
-        key_name: (( meta.aws.default_key_name ))
+    resource_pool: large
     persistent_disk_pool: bosh-ssd
     networks:
       - name: default
         static_ips: (( meta.networks.default.static_ips ))
 
-resource_pools: []
+resource_pools:
+- name: large
+  network: default
+  stemcell:
+    name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+    version: latest
+  cloud_properties:
+    instance_type: m3.large
+    availability_zone: (( meta.cloud_properties.availability_zone ))
+    key_name: (( meta.aws.default_key_name ))
 
 properties:
   env:
