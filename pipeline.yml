@@ -123,19 +123,10 @@ jobs:
   - aggregate:
     - get: pipeline-tasks
     - get: bosh-config
-      trigger: true
-      passed: [deploy-production-bosh]
     - get: bosh-release
-      trigger: true
-      passed: [deploy-production-bosh]
     - get: uaa-release
-      trigger: true
-      passed: [deploy-production-bosh]
     - get: cpi-release
-      trigger: true
-      passed: [deploy-production-bosh]
     - get: bosh-stemcell
-      passed: [deploy-production-bosh]
     - get: common-tooling
       trigger: true
   - task: bosh-manifest
@@ -285,28 +276,28 @@ resources:
 - name: cpi-release
   type: bosh-io-release
   source:
-    repository: {{bosh-io-cpi-repository}}
+    repository: cloudfoundry-incubator/bosh-aws-cpi-release
 
 - name: bosh-config
   type: git
   source:
-    uri: {{cg-deploy-bosh-git-url}}
-    branch: {{cg-deploy-bosh-git-branch}}
+    uri: https://github.com/18F/cg-deploy-bosh.git
+    branch: master
     paths:
     - bosh-deployment.yml
 
 - name: bosh-init-config
   type: git
   source:
-    uri: {{cg-deploy-bosh-git-url}}
-    branch: {{cg-deploy-bosh-git-branch}}
+    uri: https://github.com/18F/cg-deploy-bosh.git
+    branch: master
     paths:
     - bosh-init-deployment.yml
 
 - name: bosh-stemcell
   type: bosh-io-stemcell
   source:
-    name: {{bosh-stemcell}}
+    name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
 
 - name: toolingbosh-deployment
   type: 18f-bosh-deployment
@@ -343,8 +334,8 @@ resources:
 - name: pipeline-tasks
   type: git
   source:
-    uri: {{pipeline-tasks-git-url}}
-    branch: {{pipeline-tasks-git-branch}}
+    uri: https://github.com/18F/cg-pipeline-tasks.git
+    branch: master
 
 - name: slack
   type: slack-notification
