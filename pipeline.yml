@@ -16,18 +16,6 @@ jobs:
     - get: bosh-stemcell
     - get: common-staging
       trigger: true
-    - get: stagingbosh-certificate
-      trigger: true
-    - get: cg-s3-fisma-release
-      trigger: true
-    - get: cg-s3-tripwire-release
-      trigger: true
-    - get: cg-s3-awslogs-release
-      trigger: true
-    - get: cg-s3-nessus-agent-release
-      trigger: true
-    - get: cg-s3-newrelic-release
-      trigger: true
   - task: bosh-manifest
     file: pipeline-tasks/spiff-merge.yml
     config:
@@ -49,6 +37,43 @@ jobs:
         - cpi-release/*.tgz
       stemcells:
         - bosh-stemcell/*.tgz
+    on_failure:
+      put: slack
+      params:
+        text: |
+          :x: FAILED to deploy Staging BOSH
+          <$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+        channel: {{slack-channel}}
+        username: {{slack-username}}
+        icon_url: {{slack-icon-url}}
+    on_success:
+      put: slack
+      params:
+        text: |
+          :white_check_mark: Successfully deployed Staging BOSH
+          <$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+        channel: {{slack-channel}}
+        username: {{slack-username}}
+        icon_url: {{slack-icon-url}}
+
+- name: common-releases-staging
+  serial: true
+  plan:
+  - aggregate:
+    - get: pipeline-tasks
+    - get: stagingbosh-certificate
+    - get: cg-s3-fisma-release
+      trigger: true
+    - get: cg-s3-tripwire-release
+      trigger: true
+    - get: cg-s3-awslogs-release
+      trigger: true
+    - get: cg-s3-nessus-agent-release
+      trigger: true
+    - get: cg-s3-newrelic-release
+      trigger: true
+    - get: stagingbosh-deployment
+      passed: [deploy-staging-bosh]
   - aggregate:
     - task: upload-fisma
       file: pipeline-tasks/upload-release.yml
@@ -100,24 +125,6 @@ jobs:
         BOSH_PASSWORD: {{stagingbosh-password}}
         BOSH_TARGET: {{stagingbosh-target}}
         BOSH_CERT: bosh.pem
-    on_failure:
-      put: slack
-      params:
-        text: |
-          :x: FAILED to deploy Staging BOSH
-          <$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
-        channel: {{slack-channel}}
-        username: {{slack-username}}
-        icon_url: {{slack-icon-url}}
-    on_success:
-      put: slack
-      params:
-        text: |
-          :white_check_mark: Successfully deployed Staging BOSH
-          <$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
-        channel: {{slack-channel}}
-        username: {{slack-username}}
-        icon_url: {{slack-icon-url}}
 
 - name: deploy-production-bosh
   serial: true
@@ -140,18 +147,6 @@ jobs:
       passed: [deploy-staging-bosh]
     - get: common-production
       trigger: true
-    - get: productionbosh-certificate
-      trigger: true
-    - get: cg-s3-fisma-release
-      trigger: true
-    - get: cg-s3-tripwire-release
-      trigger: true
-    - get: cg-s3-awslogs-release
-      trigger: true
-    - get: cg-s3-nessus-agent-release
-      trigger: true
-    - get: cg-s3-newrelic-release
-      trigger: true
   - task: bosh-manifest
     file: pipeline-tasks/spiff-merge.yml
     config:
@@ -173,6 +168,43 @@ jobs:
         - cpi-release/*.tgz
       stemcells:
         - bosh-stemcell/*.tgz
+    on_failure:
+      put: slack
+      params:
+        text: |
+          :x: FAILED to deploy production BOSH
+          <$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+        channel: {{slack-channel}}
+        username: {{slack-username}}
+        icon_url: {{slack-icon-url}}
+    on_success:
+      put: slack
+      params:
+        text: |
+          :white_check_mark: Successfully deployed production BOSH
+          <$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+        channel: {{slack-channel}}
+        username: {{slack-username}}
+        icon_url: {{slack-icon-url}}
+
+- name: common-releases-production
+  serial: true
+  plan:
+  - aggregate:
+    - get: pipeline-tasks
+    - get: productionbosh-certificate
+    - get: cg-s3-fisma-release
+      trigger: true
+    - get: cg-s3-tripwire-release
+      trigger: true
+    - get: cg-s3-awslogs-release
+      trigger: true
+    - get: cg-s3-nessus-agent-release
+      trigger: true
+    - get: cg-s3-newrelic-release
+      trigger: true
+    - get: productionbosh-deployment
+      passed: [deploy-production-bosh]
   - aggregate:
     - task: upload-fisma
       file: pipeline-tasks/upload-release.yml
@@ -224,24 +256,6 @@ jobs:
         BOSH_PASSWORD: {{productionbosh-password}}
         BOSH_TARGET: {{productionbosh-target}}
         BOSH_CERT: bosh.pem
-    on_failure:
-      put: slack
-      params:
-        text: |
-          :x: FAILED to deploy production BOSH
-          <$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
-        channel: {{slack-channel}}
-        username: {{slack-username}}
-        icon_url: {{slack-icon-url}}
-    on_success:
-      put: slack
-      params:
-        text: |
-          :white_check_mark: Successfully deployed production BOSH
-          <$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
-        channel: {{slack-channel}}
-        username: {{slack-username}}
-        icon_url: {{slack-icon-url}}
 
 - name: deploy-tooling-bosh
   serial: true
@@ -254,17 +268,6 @@ jobs:
     - get: cpi-release
     - get: bosh-stemcell
     - get: common-tooling
-      trigger: true
-    - get: pipeline-tasks
-    - get: cg-s3-fisma-release
-      trigger: true
-    - get: cg-s3-tripwire-release
-      trigger: true
-    - get: cg-s3-awslogs-release
-      trigger: true
-    - get: cg-s3-nessus-agent-release
-      trigger: true
-    - get: cg-s3-newrelic-release
       trigger: true
   - task: bosh-manifest
     file: pipeline-tasks/spiff-merge.yml
@@ -286,6 +289,43 @@ jobs:
         - cpi-release/*.tgz
       stemcells:
         - bosh-stemcell/*.tgz
+    on_failure:
+      put: slack
+      params:
+        text: |
+          :x: FAILED to deploy Tooling BOSH
+          <$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+        channel: {{slack-channel}}
+        username: {{slack-username}}
+        icon_url: {{slack-icon-url}}
+    on_success:
+      put: slack
+      params:
+        text: |
+          :white_check_mark: Successfully deployed Tooling BOSH
+          <$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+        channel: {{slack-channel}}
+        username: {{slack-username}}
+        icon_url: {{slack-icon-url}}
+
+- name: common-releases-tooling
+  serial: true
+  plan:
+  - aggregate:
+    - get: pipeline-tasks
+    - get: common-tooling
+    - get: cg-s3-fisma-release
+      trigger: true
+    - get: cg-s3-tripwire-release
+      trigger: true
+    - get: cg-s3-awslogs-release
+      trigger: true
+    - get: cg-s3-nessus-agent-release
+      trigger: true
+    - get: cg-s3-newrelic-release
+      trigger: true
+    - get: toolingbosh-deployment
+      passed: [deploy-tooling-bosh]
   - aggregate:
     - task: upload-fisma
       file: pipeline-tasks/upload-release.yml
@@ -337,24 +377,6 @@ jobs:
         BOSH_PASSWORD: {{toolingbosh-password}}
         BOSH_TARGET: {{toolingbosh-target}}
         BOSH_CERT: boshCA.crt
-    on_failure:
-      put: slack
-      params:
-        text: |
-          :x: FAILED to deploy Tooling BOSH
-          <$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
-        channel: {{slack-channel}}
-        username: {{slack-username}}
-        icon_url: {{slack-icon-url}}
-    on_success:
-      put: slack
-      params:
-        text: |
-          :white_check_mark: Successfully deployed Tooling BOSH
-          <$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
-        channel: {{slack-channel}}
-        username: {{slack-username}}
-        icon_url: {{slack-icon-url}}
 
 - name: deploy-master-bosh
   serial: true
