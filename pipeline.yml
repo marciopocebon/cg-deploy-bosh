@@ -56,6 +56,76 @@ jobs:
         username: {{slack-username}}
         icon_url: {{slack-icon-url}}
 
+- name: common-releases-staging
+  serial: true
+  plan:
+  - aggregate:
+    - get: pipeline-tasks
+    - get: stagingbosh-certificate
+    - get: cg-s3-fisma-release
+      trigger: true
+    - get: cg-s3-tripwire-release
+      trigger: true
+    - get: cg-s3-awslogs-release
+      trigger: true
+    - get: cg-s3-nessus-agent-release
+      trigger: true
+    - get: cg-s3-newrelic-release
+      trigger: true
+    - get: stagingbosh-deployment
+      passed: [deploy-staging-bosh]
+  - aggregate:
+    - task: upload-fisma
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-fisma-release
+        certificate: stagingbosh-certificate
+      params:
+        BOSH_USERNAME: {{stagingbosh-username}}
+        BOSH_PASSWORD: {{stagingbosh-password}}
+        BOSH_TARGET: {{stagingbosh-target}}
+        BOSH_CERT: bosh.pem
+    - task: upload-tripwire
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-tripwire-release
+        certificate: stagingbosh-certificate
+      params:
+        BOSH_USERNAME: {{stagingbosh-username}}
+        BOSH_PASSWORD: {{stagingbosh-password}}
+        BOSH_TARGET: {{stagingbosh-target}}
+        BOSH_CERT: bosh.pem
+    - task: upload-awslogs
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-awslogs-release
+        certificate: stagingbosh-certificate
+      params:
+        BOSH_USERNAME: {{stagingbosh-username}}
+        BOSH_PASSWORD: {{stagingbosh-password}}
+        BOSH_TARGET: {{stagingbosh-target}}
+        BOSH_CERT: bosh.pem
+    - task: upload-nessus-agent
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-nessus-agent-release
+        certificate: stagingbosh-certificate
+      params:
+        BOSH_USERNAME: {{stagingbosh-username}}
+        BOSH_PASSWORD: {{stagingbosh-password}}
+        BOSH_TARGET: {{stagingbosh-target}}
+        BOSH_CERT: bosh.pem
+    - task: upload-newrelic
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-newrelic-release
+        certificate: stagingbosh-certificate
+      params:
+        BOSH_USERNAME: {{stagingbosh-username}}
+        BOSH_PASSWORD: {{stagingbosh-password}}
+        BOSH_TARGET: {{stagingbosh-target}}
+        BOSH_CERT: bosh.pem
+
 - name: deploy-production-bosh
   serial: true
   plan:
@@ -117,6 +187,76 @@ jobs:
         username: {{slack-username}}
         icon_url: {{slack-icon-url}}
 
+- name: common-releases-production
+  serial: true
+  plan:
+  - aggregate:
+    - get: pipeline-tasks
+    - get: productionbosh-certificate
+    - get: cg-s3-fisma-release
+      trigger: true
+    - get: cg-s3-tripwire-release
+      trigger: true
+    - get: cg-s3-awslogs-release
+      trigger: true
+    - get: cg-s3-nessus-agent-release
+      trigger: true
+    - get: cg-s3-newrelic-release
+      trigger: true
+    - get: productionbosh-deployment
+      passed: [deploy-production-bosh]
+  - aggregate:
+    - task: upload-fisma
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-fisma-release
+        certificate: productionbosh-certificate
+      params:
+        BOSH_USERNAME: {{productionbosh-username}}
+        BOSH_PASSWORD: {{productionbosh-password}}
+        BOSH_TARGET: {{productionbosh-target}}
+        BOSH_CERT: bosh.pem
+    - task: upload-tripwire
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-tripwire-release
+        certificate: productionbosh-certificate
+      params:
+        BOSH_USERNAME: {{productionbosh-username}}
+        BOSH_PASSWORD: {{productionbosh-password}}
+        BOSH_TARGET: {{productionbosh-target}}
+        BOSH_CERT: bosh.pem
+    - task: upload-awslogs
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-awslogs-release
+        certificate: productionbosh-certificate
+      params:
+        BOSH_USERNAME: {{productionbosh-username}}
+        BOSH_PASSWORD: {{productionbosh-password}}
+        BOSH_TARGET: {{productionbosh-target}}
+        BOSH_CERT: bosh.pem
+    - task: upload-nessus-agent
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-nessus-agent-release
+        certificate: productionbosh-certificate
+      params:
+        BOSH_USERNAME: {{productionbosh-username}}
+        BOSH_PASSWORD: {{productionbosh-password}}
+        BOSH_TARGET: {{productionbosh-target}}
+        BOSH_CERT: bosh.pem
+    - task: upload-newrelic
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-newrelic-release
+        certificate: productionbosh-certificate
+      params:
+        BOSH_USERNAME: {{productionbosh-username}}
+        BOSH_PASSWORD: {{productionbosh-password}}
+        BOSH_TARGET: {{productionbosh-target}}
+        BOSH_CERT: bosh.pem
+
 - name: deploy-tooling-bosh
   serial: true
   plan:
@@ -167,6 +307,76 @@ jobs:
         channel: {{slack-channel}}
         username: {{slack-username}}
         icon_url: {{slack-icon-url}}
+
+- name: common-releases-tooling
+  serial: true
+  plan:
+  - aggregate:
+    - get: pipeline-tasks
+    - get: common-tooling
+    - get: cg-s3-fisma-release
+      trigger: true
+    - get: cg-s3-tripwire-release
+      trigger: true
+    - get: cg-s3-awslogs-release
+      trigger: true
+    - get: cg-s3-nessus-agent-release
+      trigger: true
+    - get: cg-s3-newrelic-release
+      trigger: true
+    - get: toolingbosh-deployment
+      passed: [deploy-tooling-bosh]
+  - aggregate:
+    - task: upload-fisma
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-fisma-release
+        certificate: common-tooling
+      params:
+        BOSH_USERNAME: {{toolingbosh-username}}
+        BOSH_PASSWORD: {{toolingbosh-password}}
+        BOSH_TARGET: {{toolingbosh-target}}
+        BOSH_CERT: boshCA.crt
+    - task: upload-tripwire
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-tripwire-release
+        certificate: common-tooling
+      params:
+        BOSH_USERNAME: {{toolingbosh-username}}
+        BOSH_PASSWORD: {{toolingbosh-password}}
+        BOSH_TARGET: {{toolingbosh-target}}
+        BOSH_CERT: boshCA.crt
+    - task: upload-awslogs
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-awslogs-release
+        certificate: common-tooling
+      params:
+        BOSH_USERNAME: {{toolingbosh-username}}
+        BOSH_PASSWORD: {{toolingbosh-password}}
+        BOSH_TARGET: {{toolingbosh-target}}
+        BOSH_CERT: boshCA.crt
+    - task: upload-nessus-agent
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-nessus-agent-release
+        certificate: common-tooling
+      params:
+        BOSH_USERNAME: {{toolingbosh-username}}
+        BOSH_PASSWORD: {{toolingbosh-password}}
+        BOSH_TARGET: {{toolingbosh-target}}
+        BOSH_CERT: boshCA.crt
+    - task: upload-newrelic
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-newrelic-release
+        certificate: common-tooling
+      params:
+        BOSH_USERNAME: {{toolingbosh-username}}
+        BOSH_PASSWORD: {{toolingbosh-password}}
+        BOSH_TARGET: {{toolingbosh-target}}
+        BOSH_CERT: boshCA.crt
 
 - name: deploy-master-bosh
   serial: true
@@ -341,6 +551,69 @@ resources:
   type: slack-notification
   source:
     url: {{slack-webhook-url}}
+
+- name: cg-s3-fisma-release
+  type: s3
+  source:
+    access_key_id: {{s3-bosh-releases-access-key-id}}
+    bucket: {{s3-bosh-releases-bucket}}
+    private: true
+    regexp: fisma-(.*).tgz
+    secret_access_key: {{s3-bosh-releases-secret-access-key}}
+
+- name: cg-s3-tripwire-release
+  type: s3
+  source:
+    access_key_id: {{s3-bosh-releases-access-key-id}}
+    bucket: {{s3-bosh-releases-bucket}}
+    private: true
+    regexp: tripwire-(.*).tgz
+    secret_access_key: {{s3-bosh-releases-secret-access-key}}
+
+- name: cg-s3-awslogs-release
+  type: s3
+  source:
+    access_key_id: {{s3-bosh-releases-access-key-id}}
+    bucket: {{s3-bosh-releases-bucket}}
+    private: true
+    regexp: awslogs-(.*).tgz
+    secret_access_key: {{s3-bosh-releases-secret-access-key}}
+
+- name: cg-s3-nessus-agent-release
+  type: s3
+  source:
+    access_key_id: {{s3-bosh-releases-access-key-id}}
+    bucket: {{s3-bosh-releases-bucket}}
+    private: true
+    regexp: nessus-agent-(.*).tgz
+    secret_access_key: {{s3-bosh-releases-secret-access-key}}
+
+- name: cg-s3-newrelic-release
+  type: s3
+  source:
+    access_key_id: {{s3-bosh-releases-access-key-id}}
+    bucket: {{s3-bosh-releases-bucket}}
+    private: true
+    regexp: newrelic-(.*).tgz
+    secret_access_key: {{s3-bosh-releases-secret-access-key}}
+
+- name: stagingbosh-certificate
+  type: s3
+  source:
+    access_key_id: {{production-bucket-access-key-id}}
+    bucket: {{staging-bucket-name}}
+    secret_access_key: {{production-bucket-secret-access-key}}
+    versioned_file: bosh.pem
+    private: true
+
+- name: productionbosh-certificate
+  type: s3
+  source:
+    access_key_id: {{production-bucket-access-key-id}}
+    bucket: {{production-bucket-name}}
+    secret_access_key: {{production-bucket-secret-access-key}}
+    versioned_file: bosh.pem
+    private: true
 
 resource_types:
 - name: bosh-init-deployment
