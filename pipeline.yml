@@ -128,6 +128,12 @@ jobs:
     - get: cpi-release
     - get: bosh-stemcell
     - get: common-tooling
+    - get: pipeline-tasks
+    - get: cg-s3-fisma-release
+    - get: cg-s3-tripwire-release
+    - get: cg-s3-awslogs-release
+    - get: cg-s3-nessus-agent-release
+    - get: cg-s3-newrelic-release
       trigger: true
   - task: bosh-manifest
     file: pipeline-tasks/spiff-merge.yml
@@ -149,6 +155,52 @@ jobs:
         - cpi-release/*.tgz
       stemcells:
         - bosh-stemcell/*.tgz
+  - aggregate:
+    - task: upload-fisma
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-fisma-release
+        certificate: common-tooling
+      params:
+        BOSH_USERNAME: {{toolingbosh-username}}
+        BOSH_PASSWORD: {{toolingbosh-password}}
+        BOSH_TARGET: {{toolingbosh-target}}
+    - task: upload-tripwire
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-tripwire-release
+        certificate: common-tooling
+      params:
+        BOSH_USERNAME: {{toolingbosh-username}}
+        BOSH_PASSWORD: {{toolingbosh-password}}
+        BOSH_TARGET: {{toolingbosh-target}}
+    - task: upload-awslogs
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-awslogs-release
+        certificate: common-tooling
+      params:
+        BOSH_USERNAME: {{toolingbosh-username}}
+        BOSH_PASSWORD: {{toolingbosh-password}}
+        BOSH_TARGET: {{toolingbosh-target}}
+    - task: upload-nessus-agent
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-nessus-agent-release
+        certificate: common-tooling
+      params:
+        BOSH_USERNAME: {{toolingbosh-username}}
+        BOSH_PASSWORD: {{toolingbosh-password}}
+        BOSH_TARGET: {{toolingbosh-target}}
+    - task: upload-newrelic
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-newrelic-release
+        certificate: common-tooling
+      params:
+        BOSH_USERNAME: {{toolingbosh-username}}
+        BOSH_PASSWORD: {{toolingbosh-password}}
+        BOSH_TARGET: {{toolingbosh-target}}
     on_failure:
       put: slack
       params:
@@ -341,6 +393,51 @@ resources:
   type: slack-notification
   source:
     url: {{slack-webhook-url}}
+
+- name: cg-s3-fisma-release
+  type: s3
+  source:
+    access_key_id: {{s3-bosh-releases-access-key-id}}
+    bucket: {{s3-bosh-releases-bucket}}
+    private: true
+    regexp: fisma-(.*).tgz
+    secret_access_key: {{s3-bosh-releases-secret-access-key}}
+
+- name: cg-s3-tripwire-release
+  type: s3
+  source:
+    access_key_id: {{s3-bosh-releases-access-key-id}}
+    bucket: {{s3-bosh-releases-bucket}}
+    private: true
+    regexp: tripwire-(.*).tgz
+    secret_access_key: {{s3-bosh-releases-secret-access-key}}
+
+- name: cg-s3-awslogs-release
+  type: s3
+  source:
+    access_key_id: {{s3-bosh-releases-access-key-id}}
+    bucket: {{s3-bosh-releases-bucket}}
+    private: true
+    regexp: awslogs-(.*).tgz
+    secret_access_key: {{s3-bosh-releases-secret-access-key}}
+
+- name: cg-s3-nessus-agent-release
+  type: s3
+  source:
+    access_key_id: {{s3-bosh-releases-access-key-id}}
+    bucket: {{s3-bosh-releases-bucket}}
+    private: true
+    regexp: nessus-agent-(.*).tgz
+    secret_access_key: {{s3-bosh-releases-secret-access-key}}
+
+- name: cg-s3-newrelic-release
+  type: s3
+  source:
+    access_key_id: {{s3-bosh-releases-access-key-id}}
+    bucket: {{s3-bosh-releases-bucket}}
+    private: true
+    regexp: newrelic-(.*).tgz
+    secret_access_key: {{s3-bosh-releases-secret-access-key}}
 
 resource_types:
 - name: bosh-init-deployment
