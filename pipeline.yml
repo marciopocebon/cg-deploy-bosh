@@ -573,6 +573,7 @@ resources:
     private: true
     regexp: fisma-(.*).tgz
     secret_access_key: {{s3-bosh-releases-secret-access-key}}
+    region_name: {{bosh-init-bucket-region}}
 
 - name: cg-s3-tripwire-release
   type: s3
@@ -582,6 +583,7 @@ resources:
     private: true
     regexp: tripwire-(.*).tgz
     secret_access_key: {{s3-bosh-releases-secret-access-key}}
+    region_name: {{bosh-init-bucket-region}}
 
 - name: cg-s3-awslogs-release
   type: s3
@@ -591,6 +593,7 @@ resources:
     private: true
     regexp: awslogs-(.*).tgz
     secret_access_key: {{s3-bosh-releases-secret-access-key}}
+    region_name: {{bosh-init-bucket-region}}
 
 - name: cg-s3-nessus-agent-release
   type: s3
@@ -600,6 +603,7 @@ resources:
     private: true
     regexp: nessus-agent-(.*).tgz
     secret_access_key: {{s3-bosh-releases-secret-access-key}}
+    region_name: {{bosh-init-bucket-region}}
 
 - name: cg-s3-newrelic-release
   type: s3
@@ -609,6 +613,7 @@ resources:
     private: true
     regexp: newrelic-(.*).tgz
     secret_access_key: {{s3-bosh-releases-secret-access-key}}
+    region_name: {{bosh-init-bucket-region}}
 
 - name: stagingbosh-certificate
   type: s3
@@ -618,6 +623,7 @@ resources:
     secret_access_key: {{production-bucket-secret-access-key}}
     versioned_file: bosh.pem
     private: true
+    region_name: {{bosh-init-bucket-region}}
 
 - name: productionbosh-certificate
   type: s3
@@ -627,6 +633,7 @@ resources:
     secret_access_key: {{production-bucket-secret-access-key}}
     versioned_file: bosh.pem
     private: true
+    region_name: {{bosh-init-bucket-region}}
 
 resource_types:
 - name: bosh-init-deployment
