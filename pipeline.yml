@@ -508,10 +508,19 @@ resources:
     paths:
     - bosh-init-deployment.yml
 
+#- name: bosh-stemcell
+#  type: bosh-io-stemcell
+#  source:
+#    name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+
 - name: bosh-stemcell
-  type: bosh-io-stemcell
+  type: s3
   source:
-    name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+     bucket: cg-stemcell-images
+     region_name: {{bosh-init-bucket-region}}
+     access_key_id: {{production-bucket-access-key-id}}
+     secret_access_key: {{production-bucket-secret-access-key}}
+     regexp: light-bosh-stemcell-(.*)-aws-xen-hvm-ubuntu-trusty-go_agent.tgz
 
 - name: toolingbosh-deployment
   type: 18f-bosh-deployment
