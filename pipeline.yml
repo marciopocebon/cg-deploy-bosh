@@ -437,6 +437,7 @@ resources:
   type: cg-common
   source:
     bucket_name: {{production-bucket-name}}
+    region: {{bosh-init-bucket-region}}
     access_key_id: {{production-bucket-access-key-id}}
     secret_access_key: {{production-bucket-secret-access-key}}
     secrets_file: tooling-bosh.yml
@@ -447,6 +448,7 @@ resources:
   type: cg-common
   source:
     bucket_name: {{production-bucket-name}}
+    region: {{bosh-init-bucket-region}}
     access_key_id: {{production-bucket-access-key-id}}
     secret_access_key: {{production-bucket-secret-access-key}}
     secrets_file: staging-bosh.yml
@@ -457,6 +459,7 @@ resources:
   type: cg-common
   source:
     bucket_name: {{production-bucket-name}}
+    region: {{bosh-init-bucket-region}}
     access_key_id: {{production-bucket-access-key-id}}
     secret_access_key: {{production-bucket-secret-access-key}}
     secrets_file: prod-bosh.yml
@@ -467,6 +470,7 @@ resources:
   type: cg-common
   source:
     bucket_name: {{production-bucket-name}}
+    region: {{bosh-init-bucket-region}}
     access_key_id: {{production-bucket-access-key-id}}
     secret_access_key: {{production-bucket-secret-access-key}}
     secrets_file: master-bosh.yml
