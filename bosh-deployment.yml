@@ -127,6 +127,7 @@ properties:
     bucket_name: (( merge ))
     access_key_id: (( merge ))
     secret_access_key: (( merge ))
+    region: ((meta.aws.region))
     agent:
       user: agent
       password: (( meta.passwords.agent-password ))
