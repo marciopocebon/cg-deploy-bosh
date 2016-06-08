@@ -437,9 +437,9 @@ resources:
   type: cg-common
   source:
     bucket_name: {{production-bucket-name}}
-    region: {{bosh-init-bucket-region}}
-    access_key_id: {{production-bucket-access-key-id}}
-    secret_access_key: {{production-bucket-secret-access-key}}
+    region: {{aws-region}}
+    access_key_id: {{ci-access-key-id}}
+    secret_access_key: {{ci-secret-access-key}}
     secrets_file: tooling-bosh.yml
     secrets_passphrase: {{tooling-secrets-passphrase}}
     bosh_cert: bosh-tooling.pem
@@ -448,9 +448,9 @@ resources:
   type: cg-common
   source:
     bucket_name: {{production-bucket-name}}
-    region: {{bosh-init-bucket-region}}
-    access_key_id: {{production-bucket-access-key-id}}
-    secret_access_key: {{production-bucket-secret-access-key}}
+    region: {{aws-region}}
+    access_key_id: {{ci-access-key-id}}
+    secret_access_key: {{ci-secret-access-key}}
     secrets_file: staging-bosh.yml
     secrets_passphrase: {{staging-secrets-passphrase}}
     bosh_cert: bosh-tooling.pem
@@ -459,9 +459,9 @@ resources:
   type: cg-common
   source:
     bucket_name: {{production-bucket-name}}
-    region: {{bosh-init-bucket-region}}
-    access_key_id: {{production-bucket-access-key-id}}
-    secret_access_key: {{production-bucket-secret-access-key}}
+    region: {{aws-region}}
+    access_key_id: {{ci-access-key-id}}
+    secret_access_key: {{ci-secret-access-key}}
     secrets_file: prod-bosh.yml
     secrets_passphrase: {{prod-secrets-passphrase}}
     bosh_cert: bosh-tooling.pem
@@ -470,9 +470,9 @@ resources:
   type: cg-common
   source:
     bucket_name: {{production-bucket-name}}
-    region: {{bosh-init-bucket-region}}
-    access_key_id: {{production-bucket-access-key-id}}
-    secret_access_key: {{production-bucket-secret-access-key}}
+    region: {{aws-region}}
+    access_key_id: {{ci-access-key-id}}
+    secret_access_key: {{ci-secret-access-key}}
     secrets_file: master-bosh.yml
     secrets_passphrase: {{masterbosh-secrets-passphrase}}
     bosh_cert: master-bosh.pem
@@ -517,9 +517,9 @@ resources:
   type: s3
   source:
      bucket: cg-stemcell-images
-     region_name: {{bosh-init-bucket-region}}
-     access_key_id: {{production-bucket-access-key-id}}
-     secret_access_key: {{production-bucket-secret-access-key}}
+     region_name: {{aws-region}}
+     access_key_id: {{ci-access-key-id}}
+     secret_access_key: {{ci-secret-access-key}}
      regexp: light-bosh-stemcell-(.*)-aws-xen-hvm-ubuntu-trusty-go_agent.tgz
 
 - name: toolingbosh-deployment
@@ -550,9 +550,9 @@ resources:
   type: bosh-init-deployment
   source:
     bucket_name: {{bosh-init-bucket-name}}
-    access_key_id: {{bosh-init-bucket-access-key-id}}
-    secret_access_key: {{bosh-init-bucket-secret-access-key}}
-    region: {{bosh-init-bucket-region}}
+    access_key_id: {{ci-access-key-id}}
+    secret_access_key: {{ci-secret-access-key}}
+    region: {{aws-region}}
 
 - name: pipeline-tasks
   type: git
@@ -568,72 +568,72 @@ resources:
 - name: cg-s3-fisma-release
   type: s3
   source:
-    access_key_id: {{s3-bosh-releases-access-key-id}}
+    access_key_id: {{ci-access-key-id}}
     bucket: {{s3-bosh-releases-bucket}}
     private: true
     regexp: fisma-(.*).tgz
-    secret_access_key: {{s3-bosh-releases-secret-access-key}}
-    region_name: {{bosh-init-bucket-region}}
+    secret_access_key: {{ci-secret-access-key}}
+    region_name: {{aws-region}}
 
 - name: cg-s3-tripwire-release
   type: s3
   source:
-    access_key_id: {{s3-bosh-releases-access-key-id}}
+    access_key_id: {{ci-access-key-id}}
     bucket: {{s3-bosh-releases-bucket}}
     private: true
     regexp: tripwire-(.*).tgz
-    secret_access_key: {{s3-bosh-releases-secret-access-key}}
-    region_name: {{bosh-init-bucket-region}}
+    secret_access_key: {{ci-secret-access-key}}
+    region_name: {{aws-region}}
 
 - name: cg-s3-awslogs-release
   type: s3
   source:
-    access_key_id: {{s3-bosh-releases-access-key-id}}
+    access_key_id: {{ci-access-key-id}}
     bucket: {{s3-bosh-releases-bucket}}
     private: true
     regexp: awslogs-(.*).tgz
-    secret_access_key: {{s3-bosh-releases-secret-access-key}}
-    region_name: {{bosh-init-bucket-region}}
+    secret_access_key: {{ci-secret-access-key}}
+    region_name: {{aws-region}}
 
 - name: cg-s3-nessus-agent-release
   type: s3
   source:
-    access_key_id: {{s3-bosh-releases-access-key-id}}
+    access_key_id: {{ci-access-key-id}}
     bucket: {{s3-bosh-releases-bucket}}
     private: true
     regexp: nessus-agent-(.*).tgz
-    secret_access_key: {{s3-bosh-releases-secret-access-key}}
-    region_name: {{bosh-init-bucket-region}}
+    secret_access_key: {{ci-secret-access-key}}
+    region_name: {{aws-region}}
 
 - name: cg-s3-newrelic-release
   type: s3
   source:
-    access_key_id: {{s3-bosh-releases-access-key-id}}
+    access_key_id: {{ci-access-key-id}}
     bucket: {{s3-bosh-releases-bucket}}
     private: true
     regexp: newrelic-(.*).tgz
-    secret_access_key: {{s3-bosh-releases-secret-access-key}}
-    region_name: {{bosh-init-bucket-region}}
+    secret_access_key: {{ci-secret-access-key}}
+    region_name: {{aws-region}}
 
 - name: stagingbosh-certificate
   type: s3
   source:
-    access_key_id: {{production-bucket-access-key-id}}
+    access_key_id: {{ci-access-key-id}}
     bucket: {{staging-bucket-name}}
-    secret_access_key: {{production-bucket-secret-access-key}}
+    secret_access_key: {{ci-secret-access-key}}
     versioned_file: bosh.pem
     private: true
-    region_name: {{bosh-init-bucket-region}}
+    region_name: {{aws-region}}
 
 - name: productionbosh-certificate
   type: s3
   source:
-    access_key_id: {{production-bucket-access-key-id}}
+    access_key_id: {{ci-access-key-id}}
     bucket: {{production-bucket-name}}
-    secret_access_key: {{production-bucket-secret-access-key}}
+    secret_access_key: {{ci-secret-access-key}}
     versioned_file: bosh.pem
     private: true
-    region_name: {{bosh-init-bucket-region}}
+    region_name: {{aws-region}}
 
 resource_types:
 - name: bosh-init-deployment
