@@ -72,6 +72,10 @@ jobs:
       trigger: true
     - get: cg-s3-newrelic-release
       trigger: true
+    - get: cg-s3-clamav-release
+      trigger: true
+    - get: cg-s3-riemannc-release
+      trigger: true
     - get: stagingbosh-deployment
       passed: [deploy-staging-bosh]
   - aggregate:
@@ -119,6 +123,26 @@ jobs:
       file: pipeline-tasks/upload-release.yml
       input_mapping:
         release: cg-s3-newrelic-release
+        certificate: stagingbosh-certificate
+      params:
+        BOSH_USERNAME: {{stagingbosh-username}}
+        BOSH_PASSWORD: {{stagingbosh-password}}
+        BOSH_TARGET: {{stagingbosh-target}}
+        BOSH_CERT: bosh.pem
+    - task: upload-clamav
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-clamav-release
+        certificate: stagingbosh-certificate
+      params:
+        BOSH_USERNAME: {{stagingbosh-username}}
+        BOSH_PASSWORD: {{stagingbosh-password}}
+        BOSH_TARGET: {{stagingbosh-target}}
+        BOSH_CERT: bosh.pem
+    - task: upload-riemannc
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-riemannc-release
         certificate: stagingbosh-certificate
       params:
         BOSH_USERNAME: {{stagingbosh-username}}
@@ -203,6 +227,10 @@ jobs:
       trigger: true
     - get: cg-s3-newrelic-release
       trigger: true
+    - get: cg-s3-clamav-release
+      trigger: true
+    - get: cg-s3-riemannc-release
+      trigger: true
     - get: productionbosh-deployment
       passed: [deploy-production-bosh]
   - aggregate:
@@ -250,6 +278,26 @@ jobs:
       file: pipeline-tasks/upload-release.yml
       input_mapping:
         release: cg-s3-newrelic-release
+        certificate: productionbosh-certificate
+      params:
+        BOSH_USERNAME: {{productionbosh-username}}
+        BOSH_PASSWORD: {{productionbosh-password}}
+        BOSH_TARGET: {{productionbosh-target}}
+        BOSH_CERT: bosh.pem
+    - task: upload-clamav
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-clamav-release
+        certificate: productionbosh-certificate
+      params:
+        BOSH_USERNAME: {{productionbosh-username}}
+        BOSH_PASSWORD: {{productionbosh-password}}
+        BOSH_TARGET: {{productionbosh-target}}
+        BOSH_CERT: bosh.pem
+    - task: upload-riemannc
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-riemannc-release
         certificate: productionbosh-certificate
       params:
         BOSH_USERNAME: {{productionbosh-username}}
@@ -324,6 +372,10 @@ jobs:
       trigger: true
     - get: cg-s3-newrelic-release
       trigger: true
+    - get: cg-s3-clamav-release
+      trigger: true
+    - get: cg-s3-riemannc-release
+      trigger: true
     - get: toolingbosh-deployment
       passed: [deploy-tooling-bosh]
   - aggregate:
@@ -371,6 +423,26 @@ jobs:
       file: pipeline-tasks/upload-release.yml
       input_mapping:
         release: cg-s3-newrelic-release
+        certificate: common-tooling
+      params:
+        BOSH_USERNAME: {{toolingbosh-username}}
+        BOSH_PASSWORD: {{toolingbosh-password}}
+        BOSH_TARGET: {{toolingbosh-target}}
+        BOSH_CERT: boshCA.crt
+    - task: upload-clamav
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-clamav-release
+        certificate: common-tooling
+      params:
+        BOSH_USERNAME: {{toolingbosh-username}}
+        BOSH_PASSWORD: {{toolingbosh-password}}
+        BOSH_TARGET: {{toolingbosh-target}}
+        BOSH_CERT: boshCA.crt
+    - task: upload-riemannc
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-riemannc-release
         certificate: common-tooling
       params:
         BOSH_USERNAME: {{toolingbosh-username}}
@@ -614,6 +686,26 @@ resources:
     regexp: newrelic-(.*).tgz
     secret_access_key: {{ci-secret-access-key}}
     region_name: {{aws-region}}
+
+- name: cg-s3-clamav-release
+  type: s3
+  source:
+    access_key_id: {{s3-bosh-releases-access-key-id}}
+    bucket: {{s3-bosh-releases-bucket}}
+    private: true
+    regexp: clamav-(.*).tgz
+    secret_access_key: {{s3-bosh-releases-secret-access-key}}
+    region_name: {{bosh-init-bucket-region}}
+
+- name: cg-s3-riemannc-release
+  type: s3
+  source:
+    access_key_id: {{s3-bosh-releases-access-key-id}}
+    bucket: {{s3-bosh-releases-bucket}}
+    private: true
+    regexp: riemannc-(.*).tgz
+    secret_access_key: {{s3-bosh-releases-secret-access-key}}
+    region_name: {{bosh-init-bucket-region}}
 
 - name: stagingbosh-certificate
   type: s3
