@@ -690,22 +690,22 @@ resources:
 - name: cg-s3-clamav-release
   type: s3
   source:
-    access_key_id: {{s3-bosh-releases-access-key-id}}
+    access_key_id: {{ci-access-key-id}}
     bucket: {{s3-bosh-releases-bucket}}
     private: true
     regexp: clamav-(.*).tgz
-    secret_access_key: {{s3-bosh-releases-secret-access-key}}
-    region_name: {{bosh-init-bucket-region}}
+    secret_access_key: {{ci-secret-access-key}}
+    region_name: {{aws-region}}
 
 - name: cg-s3-riemannc-release
   type: s3
   source:
-    access_key_id: {{s3-bosh-releases-access-key-id}}
+    access_key_id: {{ci-access-key-id}}
     bucket: {{s3-bosh-releases-bucket}}
     private: true
     regexp: riemannc-(.*).tgz
-    secret_access_key: {{s3-bosh-releases-secret-access-key}}
-    region_name: {{bosh-init-bucket-region}}
+    secret_access_key: {{ci-secret-access-key}}
+    region_name: {{aws-region}}
 
 - name: stagingbosh-certificate
   type: s3
