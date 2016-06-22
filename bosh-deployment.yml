@@ -49,7 +49,6 @@ update:
   canary_watch_time: 3000-180000
   update_watch_time: 3000-180000
   max_in_flight: 4
-  max_errors: 1
 
 networks: (( merge ))
 
@@ -88,8 +87,6 @@ resource_pools:
     key_name: (( meta.aws.default_key_name ))
 
 properties:
-  env:
-
   postgres: &bosh_db
     adapter: postgres
     port: 5432
@@ -116,6 +113,7 @@ properties:
     address: (( meta.default_static_ip ))
     db: *bosh_db
     ssl: (( merge ))
+    cpi_job: aws_cpi
     user_management:
       provider: uaa
       uaa:
@@ -154,20 +152,12 @@ properties:
       region: (( meta.aws.region ))
 
   hm:
-    http:
-      user: hm
-      password: (( meta.passwords.hm-password ))
     director_account:
       user: admin
       password: (( meta.passwords.admin-password ))
       ca_cert: (( merge ))
       client_id: hm
       client_secret: (( merge ))
-    event_nats_enabled: false
-    email_notifications: false
-    tsdb_enabled: false
-    pagerduty_enabled: false
-    cloud_watch_enabled: false
     varz_enabled: true
     resurrector_enabled: true
     resurrector:
@@ -212,6 +202,3 @@ properties:
     zones: {internal: {hostnames: []}}
 
   uaadb: (( merge ))
-
-cloud_provider:
-  template: {name: aws_cpi, release: bosh-aws-cpi}
