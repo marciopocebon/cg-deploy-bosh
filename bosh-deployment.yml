@@ -55,7 +55,9 @@ networks: (( merge ))
 disk_pools:
   - name: bosh-ssd
     disk_size: 300000
-    cloud_properties: {type: gp2}
+    cloud_properties:
+      type: gp2
+      encrypted: true
 
 jobs:
   - name: bosh
