@@ -44,13 +44,18 @@ resource_pools:
     sha1: 84c51fed6342d5eb7cd59728c7d691c75b6c1de8
   cloud_properties:
     instance_type: m3.large
-    ephemeral_disk: {size: 25_000, type: gp2}
+    ephemeral_disk:
+      size: 25_000
+      type: gp2
+      encrypted: true
     availability_zone: (( meta.cloud_properties.availability_zone ))
 
 disk_pools:
 - name: bosh-ssd
   disk_size: 20_000
-  cloud_properties: {type: gp2}
+  cloud_properties:
+    type: gp2
+    encrypted: true
 
 networks: (( merge ))
 
