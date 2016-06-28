@@ -74,6 +74,8 @@ jobs:
       trigger: true
     - get: cg-s3-clamav-release
       trigger: true
+    - get: cg-s3-snort-release
+      trigger: true
     - get: cg-s3-riemannc-release
       trigger: true
     - get: stagingbosh-deployment
@@ -84,7 +86,7 @@ jobs:
       input_mapping:
         release: cg-s3-fisma-release
         certificate: stagingbosh-certificate
-      params:
+      params: &bosh-params-staging
         BOSH_USERNAME: {{stagingbosh-username}}
         BOSH_PASSWORD: {{stagingbosh-password}}
         BOSH_TARGET: {{stagingbosh-target}}
@@ -95,60 +97,49 @@ jobs:
         release: cg-s3-tripwire-release
         certificate: stagingbosh-certificate
       params:
-        BOSH_USERNAME: {{stagingbosh-username}}
-        BOSH_PASSWORD: {{stagingbosh-password}}
-        BOSH_TARGET: {{stagingbosh-target}}
-        BOSH_CERT: bosh.pem
+        <<: *bosh-params-staging
     - task: upload-awslogs
       file: pipeline-tasks/upload-release.yml
       input_mapping:
         release: cg-s3-awslogs-release
         certificate: stagingbosh-certificate
       params:
-        BOSH_USERNAME: {{stagingbosh-username}}
-        BOSH_PASSWORD: {{stagingbosh-password}}
-        BOSH_TARGET: {{stagingbosh-target}}
-        BOSH_CERT: bosh.pem
+        <<: *bosh-params-staging
     - task: upload-nessus-agent
       file: pipeline-tasks/upload-release.yml
       input_mapping:
         release: cg-s3-nessus-agent-release
         certificate: stagingbosh-certificate
       params:
-        BOSH_USERNAME: {{stagingbosh-username}}
-        BOSH_PASSWORD: {{stagingbosh-password}}
-        BOSH_TARGET: {{stagingbosh-target}}
-        BOSH_CERT: bosh.pem
+        <<: *bosh-params-staging
     - task: upload-newrelic
       file: pipeline-tasks/upload-release.yml
       input_mapping:
         release: cg-s3-newrelic-release
         certificate: stagingbosh-certificate
       params:
-        BOSH_USERNAME: {{stagingbosh-username}}
-        BOSH_PASSWORD: {{stagingbosh-password}}
-        BOSH_TARGET: {{stagingbosh-target}}
-        BOSH_CERT: bosh.pem
+        <<: *bosh-params-staging
     - task: upload-clamav
       file: pipeline-tasks/upload-release.yml
       input_mapping:
         release: cg-s3-clamav-release
         certificate: stagingbosh-certificate
       params:
-        BOSH_USERNAME: {{stagingbosh-username}}
-        BOSH_PASSWORD: {{stagingbosh-password}}
-        BOSH_TARGET: {{stagingbosh-target}}
-        BOSH_CERT: bosh.pem
+        <<: *bosh-params-staging
+    - task: upload-snort
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-snort-release
+        certificate: stagingbosh-certificate
+      params:
+        <<: *bosh-params-staging
     - task: upload-riemannc
       file: pipeline-tasks/upload-release.yml
       input_mapping:
         release: cg-s3-riemannc-release
         certificate: stagingbosh-certificate
       params:
-        BOSH_USERNAME: {{stagingbosh-username}}
-        BOSH_PASSWORD: {{stagingbosh-password}}
-        BOSH_TARGET: {{stagingbosh-target}}
-        BOSH_CERT: bosh.pem
+        <<: *bosh-params-staging
 
 - name: deploy-production-bosh
   serial: true
@@ -229,6 +220,8 @@ jobs:
       trigger: true
     - get: cg-s3-clamav-release
       trigger: true
+    - get: cg-s3-snort-release
+      trigger: true
     - get: cg-s3-riemannc-release
       trigger: true
     - get: productionbosh-deployment
@@ -239,7 +232,7 @@ jobs:
       input_mapping:
         release: cg-s3-fisma-release
         certificate: productionbosh-certificate
-      params:
+      params: &bosh-params-prod
         BOSH_USERNAME: {{productionbosh-username}}
         BOSH_PASSWORD: {{productionbosh-password}}
         BOSH_TARGET: {{productionbosh-target}}
@@ -250,60 +243,49 @@ jobs:
         release: cg-s3-tripwire-release
         certificate: productionbosh-certificate
       params:
-        BOSH_USERNAME: {{productionbosh-username}}
-        BOSH_PASSWORD: {{productionbosh-password}}
-        BOSH_TARGET: {{productionbosh-target}}
-        BOSH_CERT: bosh.pem
+        <<: *bosh-params-prod
     - task: upload-awslogs
       file: pipeline-tasks/upload-release.yml
       input_mapping:
         release: cg-s3-awslogs-release
         certificate: productionbosh-certificate
       params:
-        BOSH_USERNAME: {{productionbosh-username}}
-        BOSH_PASSWORD: {{productionbosh-password}}
-        BOSH_TARGET: {{productionbosh-target}}
-        BOSH_CERT: bosh.pem
+        <<: *bosh-params-prod
     - task: upload-nessus-agent
       file: pipeline-tasks/upload-release.yml
       input_mapping:
         release: cg-s3-nessus-agent-release
         certificate: productionbosh-certificate
       params:
-        BOSH_USERNAME: {{productionbosh-username}}
-        BOSH_PASSWORD: {{productionbosh-password}}
-        BOSH_TARGET: {{productionbosh-target}}
-        BOSH_CERT: bosh.pem
+        <<: *bosh-params-prod
     - task: upload-newrelic
       file: pipeline-tasks/upload-release.yml
       input_mapping:
         release: cg-s3-newrelic-release
         certificate: productionbosh-certificate
       params:
-        BOSH_USERNAME: {{productionbosh-username}}
-        BOSH_PASSWORD: {{productionbosh-password}}
-        BOSH_TARGET: {{productionbosh-target}}
-        BOSH_CERT: bosh.pem
+        <<: *bosh-params-prod
     - task: upload-clamav
       file: pipeline-tasks/upload-release.yml
       input_mapping:
         release: cg-s3-clamav-release
         certificate: productionbosh-certificate
       params:
-        BOSH_USERNAME: {{productionbosh-username}}
-        BOSH_PASSWORD: {{productionbosh-password}}
-        BOSH_TARGET: {{productionbosh-target}}
-        BOSH_CERT: bosh.pem
+        <<: *bosh-params-prod
+    - task: upload-snort
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-snort-release
+        certificate: productionbosh-certificate
+      params:
+        <<: *bosh-params-prod
     - task: upload-riemannc
       file: pipeline-tasks/upload-release.yml
       input_mapping:
         release: cg-s3-riemannc-release
         certificate: productionbosh-certificate
       params:
-        BOSH_USERNAME: {{productionbosh-username}}
-        BOSH_PASSWORD: {{productionbosh-password}}
-        BOSH_TARGET: {{productionbosh-target}}
-        BOSH_CERT: bosh.pem
+        <<: *bosh-params-prod
 
 - name: deploy-tooling-bosh
   serial: true
@@ -694,6 +676,16 @@ resources:
     bucket: {{s3-bosh-releases-bucket}}
     private: true
     regexp: clamav-(.*).tgz
+    secret_access_key: {{ci-secret-access-key}}
+    region_name: {{aws-region}}
+
+- name: cg-s3-snort-release
+  type: s3
+  source:
+    access_key_id: {{ci-access-key-id}}
+    bucket: {{s3-bosh-releases-bucket}}
+    private: true
+    regexp: snort-(.*).tgz
     secret_access_key: {{ci-secret-access-key}}
     region_name: {{aws-region}}
 
