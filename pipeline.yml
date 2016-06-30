@@ -366,7 +366,7 @@ jobs:
       input_mapping:
         release: cg-s3-fisma-release
         certificate: common-tooling
-      params:
+      params: &bosh-params-tooling
         BOSH_USERNAME: {{toolingbosh-username}}
         BOSH_PASSWORD: {{toolingbosh-password}}
         BOSH_TARGET: {{toolingbosh-target}}
@@ -377,60 +377,49 @@ jobs:
         release: cg-s3-tripwire-release
         certificate: common-tooling
       params:
-        BOSH_USERNAME: {{toolingbosh-username}}
-        BOSH_PASSWORD: {{toolingbosh-password}}
-        BOSH_TARGET: {{toolingbosh-target}}
-        BOSH_CERT: boshCA.crt
+        <<: *bosh-params-tooling
     - task: upload-awslogs
       file: pipeline-tasks/upload-release.yml
       input_mapping:
         release: cg-s3-awslogs-release
         certificate: common-tooling
       params:
-        BOSH_USERNAME: {{toolingbosh-username}}
-        BOSH_PASSWORD: {{toolingbosh-password}}
-        BOSH_TARGET: {{toolingbosh-target}}
-        BOSH_CERT: boshCA.crt
+        <<: *bosh-params-tooling
     - task: upload-nessus-agent
       file: pipeline-tasks/upload-release.yml
       input_mapping:
         release: cg-s3-nessus-agent-release
         certificate: common-tooling
       params:
-        BOSH_USERNAME: {{toolingbosh-username}}
-        BOSH_PASSWORD: {{toolingbosh-password}}
-        BOSH_TARGET: {{toolingbosh-target}}
-        BOSH_CERT: boshCA.crt
+        <<: *bosh-params-tooling
     - task: upload-newrelic
       file: pipeline-tasks/upload-release.yml
       input_mapping:
         release: cg-s3-newrelic-release
         certificate: common-tooling
       params:
-        BOSH_USERNAME: {{toolingbosh-username}}
-        BOSH_PASSWORD: {{toolingbosh-password}}
-        BOSH_TARGET: {{toolingbosh-target}}
-        BOSH_CERT: boshCA.crt
+        <<: *bosh-params-tooling
     - task: upload-clamav
       file: pipeline-tasks/upload-release.yml
       input_mapping:
         release: cg-s3-clamav-release
         certificate: common-tooling
       params:
-        BOSH_USERNAME: {{toolingbosh-username}}
-        BOSH_PASSWORD: {{toolingbosh-password}}
-        BOSH_TARGET: {{toolingbosh-target}}
-        BOSH_CERT: boshCA.crt
+        <<: *bosh-params-tooling
+    - task: upload-snort
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-snort-release
+        certificate: common-tooling
+      params:
+        <<: *bosh-params-tooling
     - task: upload-riemannc
       file: pipeline-tasks/upload-release.yml
       input_mapping:
         release: cg-s3-riemannc-release
         certificate: common-tooling
       params:
-        BOSH_USERNAME: {{toolingbosh-username}}
-        BOSH_PASSWORD: {{toolingbosh-password}}
-        BOSH_TARGET: {{toolingbosh-target}}
-        BOSH_CERT: boshCA.crt
+        <<: *bosh-params-tooling
 
 - name: deploy-master-bosh
   serial: true
@@ -622,82 +611,50 @@ resources:
 - name: cg-s3-fisma-release
   type: s3
   source:
-    access_key_id: {{ci-access-key-id}}
-    bucket: {{s3-bosh-releases-bucket}}
-    private: true
     regexp: fisma-(.*).tgz
-    secret_access_key: {{ci-secret-access-key}}
-    region_name: {{aws-region}}
+    <<: *s3-release-params
 
 - name: cg-s3-tripwire-release
   type: s3
   source:
-    access_key_id: {{ci-access-key-id}}
-    bucket: {{s3-bosh-releases-bucket}}
-    private: true
     regexp: tripwire-(.*).tgz
-    secret_access_key: {{ci-secret-access-key}}
-    region_name: {{aws-region}}
+    <<: *s3-release-params
 
 - name: cg-s3-awslogs-release
   type: s3
   source:
-    access_key_id: {{ci-access-key-id}}
-    bucket: {{s3-bosh-releases-bucket}}
-    private: true
     regexp: awslogs-(.*).tgz
-    secret_access_key: {{ci-secret-access-key}}
-    region_name: {{aws-region}}
+    <<: *s3-release-params
 
 - name: cg-s3-nessus-agent-release
   type: s3
   source:
-    access_key_id: {{ci-access-key-id}}
-    bucket: {{s3-bosh-releases-bucket}}
-    private: true
     regexp: nessus-agent-(.*).tgz
-    secret_access_key: {{ci-secret-access-key}}
-    region_name: {{aws-region}}
+    <<: *s3-release-params
 
 - name: cg-s3-newrelic-release
   type: s3
   source:
-    access_key_id: {{ci-access-key-id}}
-    bucket: {{s3-bosh-releases-bucket}}
-    private: true
     regexp: newrelic-(.*).tgz
-    secret_access_key: {{ci-secret-access-key}}
-    region_name: {{aws-region}}
+    <<: *s3-release-params
 
 - name: cg-s3-clamav-release
   type: s3
   source:
-    access_key_id: {{ci-access-key-id}}
-    bucket: {{s3-bosh-releases-bucket}}
-    private: true
     regexp: clamav-(.*).tgz
-    secret_access_key: {{ci-secret-access-key}}
-    region_name: {{aws-region}}
+    <<: *s3-release-params
 
 - name: cg-s3-snort-release
   type: s3
   source:
-    access_key_id: {{ci-access-key-id}}
-    bucket: {{s3-bosh-releases-bucket}}
-    private: true
     regexp: snort-(.*).tgz
-    secret_access_key: {{ci-secret-access-key}}
-    region_name: {{aws-region}}
+    <<: *s3-release-params
 
 - name: cg-s3-riemannc-release
   type: s3
   source:
-    access_key_id: {{ci-access-key-id}}
-    bucket: {{s3-bosh-releases-bucket}}
-    private: true
     regexp: riemannc-(.*).tgz
-    secret_access_key: {{ci-secret-access-key}}
-    region_name: {{aws-region}}
+    <<: *s3-release-params
 
 - name: stagingbosh-certificate
   type: s3
@@ -737,3 +694,9 @@ resource_types:
   source:
     repository: cfcommunity/slack-notification-resource
 
+s3-release-params: &s3-release-params
+  access_key_id: {{ci-access-key-id}}
+  secret_access_key: {{ci-secret-access-key}}
+  bucket: {{s3-bosh-releases-bucket}}
+  region_name: {{aws-region}}
+  private: true
