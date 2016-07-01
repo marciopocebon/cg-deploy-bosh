@@ -356,6 +356,8 @@ jobs:
       trigger: true
     - get: cg-s3-clamav-release
       trigger: true
+    - get: cg-s3-snort-release
+      trigger: true
     - get: cg-s3-riemannc-release
       trigger: true
     - get: toolingbosh-deployment
