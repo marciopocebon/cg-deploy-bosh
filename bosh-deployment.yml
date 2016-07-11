@@ -45,8 +45,6 @@ releases:
   version: latest
 - name: newrelic
   version: latest
-- name: riemannc
-  version: latest
 - name: clamav
   version: latest
 - name: snort
@@ -117,9 +115,6 @@ properties:
   awslogs: (( merge ))
   nessus-agent: (( merge ))
   newrelic: (( merge ))
-  collectd:
-    riemann_server: (( merge ))
-    hostname_prefix: (( merge ))
   postgres: &bosh_db
     adapter: postgres
     port: 5432
