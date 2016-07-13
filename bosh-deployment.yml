@@ -45,10 +45,6 @@ releases:
   version: latest
 - name: newrelic
   version: latest
-- name: clamav
-  version: latest
-- name: snort
-  version: latest
 
 compilation:
   workers: 3
@@ -89,9 +85,6 @@ jobs:
     - {name: awslogs, release: awslogs}
     - {name: nessus-agent, release: nessus-agent}
     - {name: newrelic-monitor, release: newrelic}
-    - {name: riemannc, release: riemannc}
-    - {name: clamav, release: clamav}
-    - {name: snort, release: snort}
     instances: 1
     resource_pool: large
     persistent_disk_pool: bosh-ssd
