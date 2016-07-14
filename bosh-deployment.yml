@@ -22,6 +22,9 @@ meta:
     agent-password: ~
     registry-password: ~
     hm-password: ~
+  riemann:
+    host: ~
+    port: (( merge || "5555" ))
 
 name: (( meta.name ))
 
@@ -164,6 +167,10 @@ properties:
     resurrector_enabled: true
     resurrector:
       minimum_down_jobs: 3
+    riemann_enabled: true
+    riemann:
+      host: (( meta.riemann.host ))
+      port: (( meta.riemann.port ))
 
   aws: &aws
     access_key_id: (( meta.aws.access_key_id ))
