@@ -16,6 +16,8 @@ jobs:
     - get: bosh-stemcell
     - get: common-staging
       trigger: true
+    - get: common-releases-tooling-version
+      passed: [common-releases-tooling]
   - task: bosh-manifest
     file: pipeline-tasks/spiff-merge.yml
     config:
@@ -160,6 +162,8 @@ jobs:
       passed: [deploy-staging-bosh]
     - get: bosh-stemcell
       passed: [deploy-staging-bosh]
+    - get: common-releases-tooling-version
+      passed: [common-releases-tooling]
     - get: common-production
       trigger: true
   - task: bosh-manifest
@@ -299,6 +303,8 @@ jobs:
     - get: bosh-stemcell
     - get: common-tooling
       trigger: true
+    - get: common-releases-master-version
+      passed: [common-releases-master]
   - task: bosh-manifest
     file: pipeline-tasks/spiff-merge.yml
     config:
@@ -422,6 +428,95 @@ jobs:
         certificate: common-tooling
       params:
         <<: *bosh-params-tooling
+  - put: common-releases-tooling-version
+    params: {bump: patch}
+
+- name: common-releases-master
+  serial: true
+  plan:
+  - aggregate:
+    - get: pipeline-tasks
+    - get: common-masterbosh
+    - get: cg-s3-fisma-release
+      trigger: true
+    - get: cg-s3-tripwire-release
+      trigger: true
+    - get: cg-s3-awslogs-release
+      trigger: true
+    - get: cg-s3-nessus-agent-release
+      trigger: true
+    - get: cg-s3-newrelic-release
+      trigger: true
+    - get: cg-s3-clamav-release
+      trigger: true
+    - get: cg-s3-snort-release
+      trigger: true
+    - get: cg-s3-riemannc-release
+      trigger: true
+    - get: masterbosh-deployment
+      passed: [deploy-master-bosh]
+  - aggregate:
+    - task: upload-fisma
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-fisma-release
+        certificate: common-masterbosh
+      params: &bosh-params-master
+        BOSH_USERNAME: {{masterbosh-username}}
+        BOSH_PASSWORD: {{masterbosh-password}}
+        BOSH_TARGET: {{masterbosh-target}}
+        BOSH_CERT: boshCA.crt
+    - task: upload-tripwire
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-tripwire-release
+        certificate: common-masterbosh
+      params:
+        <<: *bosh-params-master
+    - task: upload-awslogs
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-awslogs-release
+        certificate: common-masterbosh
+      params:
+        <<: *bosh-params-master
+    - task: upload-nessus-agent
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-nessus-agent-release
+        certificate: common-masterbosh
+      params:
+        <<: *bosh-params-master
+    - task: upload-newrelic
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-newrelic-release
+        certificate: common-masterbosh
+      params:
+        <<: *bosh-params-master
+    - task: upload-clamav
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-clamav-release
+        certificate: common-masterbosh
+      params:
+        <<: *bosh-params-master
+    - task: upload-snort
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-snort-release
+        certificate: common-masterbosh
+      params:
+        <<: *bosh-params-master
+    - task: upload-riemannc
+      file: pipeline-tasks/upload-release.yml
+      input_mapping:
+        release: cg-s3-riemannc-release
+        certificate: common-masterbosh
+      params:
+        <<: *bosh-params-master
+  - put: common-releases-master-version
+    params: {bump: patch}
 
 - name: deploy-master-bosh
   serial: true
@@ -676,6 +771,26 @@ resources:
     secret_access_key: {{ci-secret-access-key}}
     versioned_file: bosh.pem
     private: true
+    region_name: {{aws-region}}
+
+- name: common-releases-master-version
+  type: semver
+  source:
+    driver: s3
+    bucket: {{common-releases-bucket}}
+    key: {{common-releases-master-key}}
+    access_key_id: {{ci-access-key-id}}
+    secret_access_key: {{ci-secret-access-key}}
+    region_name: {{aws-region}}
+
+- name: common-releases-tooling-version
+  type: semver
+  source:
+    driver: s3
+    bucket: {{common-releases-bucket}}
+    key: {{common-releases-tooling-key}}
+    access_key_id: {{ci-access-key-id}}
+    secret_access_key: {{ci-secret-access-key}}
     region_name: {{aws-region}}
 
 resource_types:
